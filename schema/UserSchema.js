@@ -16,7 +16,9 @@ var userSchema = new Schema({
   created_at: { type: Date, default: moment().format('YYYY-MM-DD HH:mm:ss') },
   updated_at: { type: Date, default: moment().format('YYYY-MM-DD HH:mm:ss') },
   deleted_at: { type: String, default: null },
-  is_deleted: { type:Number, default:0}
+  is_deleted: { type:Number, default:0},
+  eth_address: {type: String, default: null},
+  eth_private_key: {type: String, default: null},
 });
 
 

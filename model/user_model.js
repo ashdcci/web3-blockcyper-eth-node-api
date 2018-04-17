@@ -100,7 +100,9 @@ user_model.prototype.updateHashAddress = function(data, callback) {
     user_address: data.user_address,
     address_public_key: data.address_public_key,
     address_private_key: data.address_private_key,
-    address_wif: data.wif
+    address_wif: data.wif,
+    eth_address: data.eth_address,
+    eth_private_key: data.eth_private_key
   }, {
     upsert: false
   },function(err,doc){
@@ -150,6 +152,37 @@ user_model.prototype.edit_profile = function(data, callback){
     last_name: data.last_name
   }, {
     upsert: false
+  },function(err,doc){
+    if(err){
+      callback(err, null)
+    }
+    callback(null, doc)
+  })
+}
+
+
+user_model.prototype.updateEthAddress = function(data, callback){
+  console.log(data)
+  User.findOneAndUpdate({
+    email: data.email
+  }, {
+    eth_address: data.eth_address,
+    eth_private_key: data.eth_private_key
+  }, {
+    upsert: false
+  },function(err,doc){
+    if(err){
+      callback(err, null)
+    }
+    callback(null, doc)
+  })
+}
+
+
+user_model.prototype.checkEthAddress = function(data, callback){
+  User.findOne({
+    access_token: data.access_token,
+    eth_address:{$ne:""}
   },function(err,doc){
     if(err){
       callback(err, null)

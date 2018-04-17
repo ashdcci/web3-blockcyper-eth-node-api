@@ -6,28 +6,19 @@ function ContractController(app) {
   tomodel = {};
   // model 	= {};
   crypto = require('crypto');
+
   async = require('async')
 }
 var Tx = require('ethereumjs-tx');
 var fs = require('fs')
-var providers = require('ethers').providers;
-var Web3 = require('web3')
-var network = providers.networks.rinkeby;
-var etherscanProvider = new providers.EtherscanProvider(network);
-// var Eth = require('web3-eth')
-// var eth = new Eth(Eth.givenProvider || 'ws://192.168.1.72:8546');
-var web3 = new Web3(new Web3.providers.HttpProvider('https://rinkeby.infura.io/Eu6qZvhMrNS0ap9G1Qty'));
-// var web3 = new Web3('ws://127.0.0.1:8545');
-// var web3 = new Web3('enode://a24ac7c5484ef4ed0c5eb2d36620ba4e4aa13b8c84684e1b4aab0cebea2ae45cb4d375b77eab56516d34bfbd3c1a833fc51296ff084b770b94fb9028c4d25ccf@52.169.42.101:30303')
-// var web3 = new Web3('https://rinkeby.etherscan.io/api?apikey=F8P7XVRRGPTA3CMY3IT4334RK3SK8PBN9P');
+var web3 = require('../config/web3')
 
-var wallet_json_interface = '[{\"constant\":true,\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_spender\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_from\",\"type\":\"address\"},{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"name\":\"\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"burn\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_from\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"burnFrom\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_spender\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"},{\"name\":\"_extraData\",\"type\":\"bytes\"}],\"name\":\"approveAndCall\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"address\"},{\"name\":\"\",\"type\":\"address\"}],\"name\":\"allowance\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"initialSupply\",\"type\":\"uint256\"},{\"name\":\"tokenName\",\"type\":\"string\"},{\"name\":\"tokenSymbol\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"from\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Burn\",\"type\":\"event\"}]';
 
 ContractController.prototype.index = function(req, res, next) {
   // return res.json(web3.isConnected())
 
-
-  var myContract = new web3.eth.Contract(JSON.parse(wallet_json_interface), '0xde2eeb9618062028dfe2d7eeef781d1d71b8a87d', {
+  var walletObj =  JSON.parse(fs.readFileSync('../config/wallet.json', 'utf8'));
+  var myContract = new web3.eth.Contract(walletObj, '0xde2eeb9618062028dfe2d7eeef781d1d71b8a87d', {
     from: '0x3c1fdbEDbC1905D4C53980A535Aa3ff2F0ff40B1', // default from address
     gasPrice: '20000000000' // default gas price in wei, 20 gwei in this case
   });
@@ -85,7 +76,7 @@ ContractController.prototype.trans_token = async function(req, res, next) {
   console.log(`web3 version: ${web3.version}`)
 
   myAddress = process.env.BNP_ETH_MY_ADDR;
-  destAddress = '0x213A85d570e3580b18A079602e3fFdD541C6C651';
+  destAddress = req.body.dest_address;
   contractAddress = process.env.BNP_ETH_CONTRACT_ADDR;
 
   transferAmount = 54500000000;
@@ -95,7 +86,7 @@ ContractController.prototype.trans_token = async function(req, res, next) {
   count = await web3.eth.getTransactionCount(myAddress);
   console.log(`num transactions so far: ${count}`);
 
-  var abiArray = JSON.parse(wallet_json_interface);
+  var abiArray = JSON.parse(fs.readFileSync('./config/wallet.json', 'utf8'));
 
   var contract = new web3.eth.Contract(abiArray, contractAddress, {
     from: myAddress
@@ -114,7 +105,7 @@ ContractController.prototype.trans_token = async function(req, res, next) {
 
   // I chose gas price and gas limit based on what ethereum wallet was recommending for a similar transaction. You may need to change the gas price!
   // Use Gwei for the unit of gas price
-  var gasPriceGwei = '0.005252';
+  var gasPriceGwei = '584';
   var gasLimit = 52968;
   // Chain ID of RinkeBy Test Net is 4, replace it to 1 for Main Net
   var chainId = 4;
@@ -229,6 +220,8 @@ ContractController.prototype.trans_addr = async function(req, res, next) {
 function financialMfil(numMfil) {
   return Number.parseFloat(numMfil / 1e3).toFixed(3);
 }
+
+
 
 
 

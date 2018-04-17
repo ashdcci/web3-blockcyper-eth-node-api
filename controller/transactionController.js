@@ -293,6 +293,7 @@ Transaction.prototype.getTransactions = function(req, res, next){
     tomodel._id = req.headers['user_id']
     tomodel.user_address = req.headers['user_address']
     tomodel.tx_type = (req.body.tx_type!==undefined) ? req.body.tx_type : 1
+    
     transaction_model.getTransactions(tomodel, function(err, doc){
       
       if(err){

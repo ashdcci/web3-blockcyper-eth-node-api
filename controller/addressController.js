@@ -1,3 +1,5 @@
+
+
 // File : controller/addressController.js -->
 
 // address controller
@@ -6,9 +8,11 @@ function Address(app){
   tomodel = {};
   bcapi = require('../config/bcpi')
   // model 	= {};
+  async = require('async')
   var userController = require('../controller/userController')
   crypto  = require('crypto');
 }
+var web3 = require('../config/web3').default
 
 module.exports = new Address();
 
@@ -20,7 +24,7 @@ module.exports = new Address();
  * @callback cb
  * @method getAddressBalance
  */
-Address.prototype.getAddressBalance = function (req, res, next) {
+Address.prototype.getAddressBalance =  (req, res, next) => {
   var token = req.body.token || req.query.token || req.headers['x-access-token'];
   tomodel.access_token = token
 user_model.getUserHashAddressByToken(tomodel,function(err, doc){
@@ -75,7 +79,7 @@ user_model.getUserHashAddressByToken(tomodel,function(err, doc){
  * @callback cb
  * @method getAddressDetails
  */
-Address.prototype.getAddressDetails = function (req, res, next) {
+Address.prototype.getAddressDetails =  (req, res, next) => {
 
 
       var token = req.body.token || req.query.token || req.headers['x-access-token'];
@@ -135,13 +139,13 @@ Address.prototype.getAddressDetails = function (req, res, next) {
  * @callback cb
  * @method getAddrFull
  */
-Address.prototype.getFullAddressDetails = function(req, res, next){
+Address.prototype.getFullAddressDetails = (req, res, next) => {
 
 
 
         var token = req.body.token || req.query.token || req.headers['x-access-token'];
         tomodel.access_token = token
-      user_model.getUserHashAddressByToken(tomodel,function(err, doc){
+      user_model.getUserHashAddressByToken(tomodel,(err, doc) =>{
 
           if(err){
             return res.json({
@@ -161,7 +165,7 @@ Address.prototype.getFullAddressDetails = function(req, res, next){
 
           if(doc.user_address){
 
-            bcapi.getAddrFull(tomodel.user_address,{},function(error, body){
+            bcapi.getAddrFull(tomodel.user_address,{},(error, body) => {
               if(error){
                 return res.json({
                   status: 0,
@@ -194,7 +198,7 @@ Address.prototype.getFullAddressDetails = function(req, res, next){
  * @callback cb
  * @method fundAddress
  */
-Address.prototype.fundAddress = function(req, res, next){
+Address.prototype.fundAddress = (req, res, next) => {
 
   var data = {"address": "CFqoZmZ3ePwK5wnkhxJjJAQKJ82C7RJdmd", "amount": 100000}
 
@@ -206,7 +210,7 @@ Address.prototype.fundAddress = function(req, res, next){
     }
     var token = req.body.token || req.query.token || req.headers['x-access-token'];
     tomodel.access_token = token
-  user_model.getUserHashAddressByToken(tomodel,function(err, doc){
+  user_model.getUserHashAddressByToken(tomodel,(err, doc) => {
 
       if(err){
         return res.json({
@@ -226,7 +230,7 @@ Address.prototype.fundAddress = function(req, res, next){
 
       if(doc.user_address){
 
-        bcapi.faucet(tomodel.user_address,tomodel.amount,function(error, body){
+        bcapi.faucet(tomodel.user_address,tomodel.amount,(error, body) => {
           if(error){
             return res.json({
               status: 0,
@@ -250,5 +254,75 @@ Address.prototype.fundAddress = function(req, res, next){
 
   })
 
+
+}
+
+
+Address.prototype.newEthAddress = async (req, res, next) =>{
+  tomodel._id = req.headers['user_id']
+  tomodel.user_address = req.headers['user_address']
+  account = await web3.eth.accounts.create(web3.utils.randomHex(32))
+  console.log(account.address, account.privateKey)
+  if(account.address && account.privateKey){
+
+    tomodel.eth_address = account.address
+    tomodel.eth_private_key = account.privateKey
+    
+    user_model.updateEthAddress(tomodel, (err, doc) =>{
+      if(err){
+        return res.status(500).json({
+          status: 0,
+          msg: 'problam in update address'
+        })
+      }
+      
+      if(doc!=null){
+        return res.status(200).json({
+          status: 1,
+          msg: 'address generated',
+          data: doc
+        })
+      }
+
+    })
+
+
+  }else{
+    return res.status(500).json({
+      status: 0,
+      msg: 'problam in generate eth address'
+    })
+  }
+
+
+
+
+
+  
+
+  return
+
+}
+
+Address.prototype.checkEthAddress = (req, res, next) =>{
+  user_model.checkEthAddress(tomodel, (err, doc) =>{
+      if(err){
+        return res.status(500).json({
+          status: 0,
+          msg: 'problam in check address'
+        })
+      }
+      console.log(err, doc)
+      if(doc!=null && doc.eth_address!=null){
+        return res.status(403).json({
+          status: 0,
+          msg: 'this account already associated with an eth address'
+        })
+      }
+
+      next()
+  })
+
+  return 
 
 }

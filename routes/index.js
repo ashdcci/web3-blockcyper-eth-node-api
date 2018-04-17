@@ -34,12 +34,13 @@ module.exports = function(app){
     app.get('/transaction/getConfidence/:hash', transactionController.getTransactionConfidence)
     app.get('/wallet/balance/:wallet',walletController.getWalletAddressBalance)
     app.get('/contract/index',ContractController.index)
-    app.get('/contract/trans_token',ContractController.trans_token)
+    app.post('/contract/trans_token',ContractController.trans_token)
     app.get('/contract/trans_to_addr',ContractController.trans_addr)
     app.get('/transaction/getSendMoney',authTokenMiddleware.authToken, transactionController.getSendMoney)
     app.get('/transaction/getRecdMoney',authTokenMiddleware.authToken, transactionController.getRecdMoney)
     app.post('/transaction/getTransactions',authTokenMiddleware.authToken , transactionController.getTransactions)
+    app.post('/contract/new-eth-address',authTokenMiddleware.authToken,addressController.checkEthAddress, addressController.newEthAddress )
     app.get('*', (req, res, next)=>{
-      res.send('not found call')
+      res.status(404).json({status:0,msg:'not found call'})
     })
 }

@@ -229,7 +229,11 @@ transaction_model.prototype.getTransactions = function(data,callback){
               then: "$user_receive.user_address",
               else: "$user.user_address"
             }
-          },
+          }
+        }
+      },{
+        $sort:{
+          "virtual_sender": -1
         }
       }    
     ]).exec().then(function(tx){

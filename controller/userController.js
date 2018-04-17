@@ -8,8 +8,12 @@ function User(app){
   jwt = require('jsonwebtoken')
   superSecret = 'b1N3xXrpwNPrsLZH2GmCa95TbuU6hvvKQYVDcKSKrg4PfiOCm_X8A5G_hpLvTmD_'
   user_model 	= require('../model/user_model')
+  async = require('async')
+
   crypto  = require('crypto')
 }
+var ContractController = require('../controller/contractController')
+var web3 = require('../config/web3')
 module.exports = new User();
 
 
@@ -24,7 +28,6 @@ User.prototype.register = function (req, res, next) {
       }
 
         req.body.access_token = createToken(req.body.email)
-        console.log(req.body)
         tomodel = {}
 
         user_model.postRegister(req.body,function(err,rows){
@@ -36,7 +39,7 @@ User.prototype.register = function (req, res, next) {
               return res.status(401).json({"status":0,"messages":{"location":"body","param":"email","msg":"This Email already Exist into System"}})
             }
 
-            createAddress(rows.email, res)
+            createAddress(rows.email, req, res, next)
             return res.json({status:1,messages:"Register Successfully",data:rows})
 
         });
@@ -77,30 +80,53 @@ User.prototype.register = function (req, res, next) {
  * @callback cb
  * @method genAddr
  */
-createAddress = function(email, res){
+createAddress = async function(email, req, res, next){
+  tomodel = {}
+  
+  
+  try{
+      account = await web3.eth.accounts.create(web3.utils.randomHex(32))
 
-  bcapi.genAddr({},function(err, rows){
+      bcapi.genAddr({},function(err, rows){
 
-    if(err){
-      return res.json({status: 0,messages: 'error into generating address' })
-    }
+        if(err){
+          return res.json({status: 0,messages: 'error into generating address' })
+        }
 
-    tomodel = {}
-    tomodel.email = email
-    tomodel.user_address = rows.address
-    tomodel.address_public_key = rows.public
-    tomodel.address_private_key = rows.private
-    tomodel.wif = rows.wif
-    user_model.updateHashAddress(tomodel,function(err1, doc){
-      if(err1){
-        return res.json({status: 0,messages: 'error into updaing address' })
-      }
-    })
 
-  })
+        tomodel.email = email
+        tomodel.user_address = rows.address
+        tomodel.address_public_key = rows.public
+        tomodel.address_private_key = rows.private
+        tomodel.wif = rows.wif
+        tomodel.eth_address = (account.address!==undefined) ? account.address : '---' 
+        tomodel.eth_private_key = (account.privateKey!==undefined) ? account.privateKey : '---'
+        req.body.desti_address = tomodel.eth_address
+
+        user_model.updateHashAddress(tomodel,function(err1, doc){
+          if(err1){
+            return res.json({status: 0,messages: 'error into updating address' })
+          }
+        })
+
+      })
+
+
+      /**
+       * send some token to this address
+       */
+
+      ContractController.trans_token(req, res, next)
+       
+
+  }catch(err1){
+    console.log(err1)
+    return res.json({status: 0,messages: 'error into updating address' })
+  }
 
   return
 }
+
 
 createToken = function(id) {
 
