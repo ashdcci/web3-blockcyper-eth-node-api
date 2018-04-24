@@ -79,7 +79,7 @@ ContractController.prototype.trans_token = async function(req, res, next) {
   destAddress = req.body.dest_address;
   contractAddress = process.env.BNP_ETH_CONTRACT_ADDR;
 
-  transferAmount = 54500000000;
+  transferAmount = (req.body.token!==undefined) ? req.body.token : 1000;
   web3.eth.defaultAccount = myAddress;
 
 
@@ -95,6 +95,9 @@ ContractController.prototype.trans_token = async function(req, res, next) {
   // burnTx = await contract.methods.burn('10').call()
   // console.log(`Burn of Transaction: \n${JSON.stringify(burnTx, null, '\t')}\n------------------------`);
 
+    var approveRes = await contract.methods.approve(myAddress,1100000)
+
+
   // How many tokens do I have before sending?
     var balanceBefore = await contract.methods.balanceOf(myAddress).call();
     console.log(`Balance before send: ${balanceBefore} ,${financialMfil(balanceBefore)} MFIL\n------------------------`);
@@ -105,8 +108,8 @@ ContractController.prototype.trans_token = async function(req, res, next) {
 
   // I chose gas price and gas limit based on what ethereum wallet was recommending for a similar transaction. You may need to change the gas price!
   // Use Gwei for the unit of gas price
-  var gasPriceGwei = '584';
-  var gasLimit = 52968;
+  var gasPriceGwei = '5';
+  var gasLimit = 100000;
   // Chain ID of RinkeBy Test Net is 4, replace it to 1 for Main Net
   var chainId = 4;
 
@@ -164,32 +167,11 @@ ContractController.prototype.trans_addr = async function(req, res, next) {
   var count = await web3.eth.getTransactionCount(myAddress);
   console.log(`num transactions so far: ${count}`);
 
-
-
-  // web3.eth.sendTransaction({
-  //     from: myAddress,
-  //     to: destAddress,
-  //     value: txValue
-  // })
-  // .then(receipt => console.log(`Receipt info: \n${JSON.stringify(receipt, null, '\t')}\n------------------------`) )
-  // .catch(err => console.log('send trans err: '+ err));
-
-
-
   var gasPriceGwei = 584;
   var gasLimit = 30000;
   // Chain ID of Ropsten Test Net is 3, replace it to 1 for Main Net
   var chainId = 3;
-  // var rawTx = {
-  //     "from": myAddress,
-  //     "nonce": "0x" + count.toString(16),
-  //     "gasPrice": web3.utils.toHex(gasPriceGwei * 1e9),
-  //     "gasLimit": web3.utils.toHex(gasLimit),
-  //     "to": destAddress,
-  //     "value": "0x0",
-  //     "data": txData,
-  //     "chainId": chainId
-  // };
+
 
   var rawTx = {
     nonce: web3.utils.toHex(count),
@@ -212,7 +194,6 @@ ContractController.prototype.trans_addr = async function(req, res, next) {
     .then(receipt => console.log(`Receipt info: \n${JSON.stringify(receipt, null, '\t')}\n------------------------`))
     .catch(err => console.log('send trans err: ' + err));
 
-  // console.log(`Receipt info: \n${JSON.stringify(receipt, null, '\t')}\n------------------------`);
   return res.send('api process done')
 
 };
