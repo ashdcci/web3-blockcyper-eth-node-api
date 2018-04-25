@@ -40,6 +40,7 @@ module.exports = function(app){
     app.get('/transaction/getRecdMoney',authTokenMiddleware.authToken, transactionController.getRecdMoney)
     app.post('/transaction/getTransactions',authTokenMiddleware.authToken , transactionController.getTransactions)
     app.post('/contract/new-eth-address',authTokenMiddleware.authToken,addressController.checkEthAddress, addressController.newEthAddress )
+    app.post('/contract/getTokenBalance', authTokenMiddleware.authToken, ContractController.getTokenBalance)
     app.get('*', (req, res, next)=>{
       res.status(404).json({status:0,msg:'not found call'})
     })

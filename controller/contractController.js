@@ -92,19 +92,12 @@ ContractController.prototype.trans_token = async function(req, res, next) {
     from: myAddress
   });
 
-  // burnTx = await contract.methods.burn('10').call()
-  // console.log(`Burn of Transaction: \n${JSON.stringify(burnTx, null, '\t')}\n------------------------`);
-
-    var approveRes = await contract.methods.approve(myAddress,1100000)
 
 
   // How many tokens do I have before sending?
     var balanceBefore = await contract.methods.balanceOf(myAddress).call();
     console.log(`Balance before send: ${balanceBefore} ,${financialMfil(balanceBefore)} MFIL\n------------------------`);
 
-  // senddata  = await contract.methods.transfer(destAddress, transferAmount).call()
-  // console.log(`sendData: \n${JSON.stringify(senddata, null, '\t')} `)
-  // return res.send('54545');
 
   // I chose gas price and gas limit based on what ethereum wallet was recommending for a similar transaction. You may need to change the gas price!
   // Use Gwei for the unit of gas price
@@ -201,6 +194,52 @@ ContractController.prototype.trans_addr = async function(req, res, next) {
 function financialMfil(numMfil) {
   return Number.parseFloat(numMfil / 1e3).toFixed(3);
 }
+
+
+  ContractController.prototype.getTokenBalance = async (req, res, next) =>{
+    console.log(req.headers)
+    if(!req.headers['user_id']){
+      return res.status(400).json({
+        status: 0,
+        message: 'user details not found'
+      })
+    }
+    tomodel._id = req.headers['user_id']
+    tomodel.user_eth_address = req.headers['eth_address']
+    
+    if(req.headers['eth_address']!=""){
+      try{
+
+      var abiArray = JSON.parse(fs.readFileSync('./config/wallet.json', 'utf8'));
+      var contract = new web3.eth.Contract(abiArray, process.env.BNP_ETH_CONTRACT_ADDR, {
+        from: process.env.BNP_ETH_MY_ADDR
+      })
+      balance = await contract.methods.balanceOf(tomodel.user_eth_address).call()
+      return res.status(200).json({
+        status: 1,
+        msg: 'user token balance',
+        token: parseInt(balance)
+      })
+    }catch(err){
+      console.log(err)
+      return res.status(500).json({
+        status: 0,
+        msg: 'problam in getting token balance'
+      })
+    }
+
+    }else{
+      return res.json({
+        status: 1,
+        msg: 'user token balance',
+        token: 0
+      })
+    }
+    
+    
+
+    return 
+  }
 
 
 
