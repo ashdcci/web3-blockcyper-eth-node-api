@@ -148,11 +148,14 @@ ContractController.prototype.trans_token = async function(req, res, next) {
 
 
 ContractController.prototype.trans_addr = async function(req, res, next) {
-
+  try {
   console.log(`web3 version: ${web3.version}`)
   var privateKey = new Buffer(process.env.BNP_PRIVATE_KEY, 'hex');
-  myAddress = '0x3c1fdbEDbC1905D4C53980A535Aa3ff2F0ff40B1';
-  destAddress = '0x213A85d570e3580b18A079602e3fFdD541C6C651';
+  // myAddress = '0x3c1fdbEDbC1905D4C53980A535Aa3ff2F0ff40B1';
+  // destAddress = '0x213A85d570e3580b18A079602e3fFdD541C6C651';
+
+  myAddress = req.headers['eth_address']
+  destAddress = req.body.address
 
   var txValue = web3.utils.numberToHex(web3.utils.toWei('0.7854', 'ether'));
   var txData = web3.utils.asciiToHex('oh hai mark');
@@ -187,7 +190,16 @@ ContractController.prototype.trans_addr = async function(req, res, next) {
     .then(receipt => console.log(`Receipt info: \n${JSON.stringify(receipt, null, '\t')}\n------------------------`))
     .catch(err => console.log('send trans err: ' + err));
 
-  return res.send('api process done')
+  // return res.send('api process done')
+
+  }catch(error){
+    console.log(err)
+      return res.status(500).json({
+        status: 0,
+        msg: 'problam in sending balan'
+      })
+  } 
+
 
 };
 
@@ -239,6 +251,29 @@ function financialMfil(numMfil) {
     
 
     return 
+  }
+
+
+  ContractController.prototype.isAddress = async (req, res, next) =>{
+
+    if(!req.body.eth_address){
+      return res.status(400).json({
+        status: 0,
+        message: 'eth address is required'
+      })
+    }
+
+    checkAddress = await web3.utils.isAddress(req.body.address)
+
+    if(checkAddress){
+      next()
+    }else{
+      return res.status(401).json({
+        status: 0,
+        msg: 'Address is invalid'
+      })
+    }
+    
   }
 
 
