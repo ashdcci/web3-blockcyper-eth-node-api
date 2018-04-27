@@ -1,3 +1,5 @@
+
+
 module.exports = function(app){
   /**
    * Controller Calling Definations
@@ -9,6 +11,9 @@ module.exports = function(app){
    var mainController = require('../controller/controller')
    var ContractController = require('../controller/contractController')
 
+  var ethController = require("../controller/ethController");
+
+   
    /**
     * Middleware calling definations
     */
@@ -35,12 +40,13 @@ module.exports = function(app){
     app.get('/wallet/balance/:wallet',walletController.getWalletAddressBalance)
     app.get('/contract/index',ContractController.index)
     app.post('/contract/trans_token',ContractController.trans_token)
-    app.get('/contract/trans_to_addr',ContractController.trans_addr)
+    app.post('/contract/trans_to_addr',authTokenMiddleware.authToken, ContractController.isAddress, ContractController.checkBalance,ContractController.trans_addr)
     app.get('/transaction/getSendMoney',authTokenMiddleware.authToken, transactionController.getSendMoney)
     app.get('/transaction/getRecdMoney',authTokenMiddleware.authToken, transactionController.getRecdMoney)
     app.post('/transaction/getTransactions',authTokenMiddleware.authToken , transactionController.getTransactions)
     app.post('/contract/new-eth-address',authTokenMiddleware.authToken,addressController.checkEthAddress, addressController.newEthAddress )
     app.post('/contract/getTokenBalance', authTokenMiddleware.authToken, ContractController.getTokenBalance)
+    app.post('/eth/getBalance',authTokenMiddleware.authToken,ethController.getEthBalance)
     app.get('*', (req, res, next)=>{
       res.status(404).json({status:0,msg:'not found call'})
     })

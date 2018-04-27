@@ -156,6 +156,7 @@ ContractController.prototype.trans_addr = async function(req, res, next) {
 
   myAddress = req.headers['eth_address']
   destAddress = req.body.address
+  amount = req.body.amount
 
   var txValue = web3.utils.numberToHex(web3.utils.toWei('0.7854', 'ether'));
   var txData = web3.utils.asciiToHex('oh hai mark');
@@ -168,7 +169,7 @@ ContractController.prototype.trans_addr = async function(req, res, next) {
   // Chain ID of Ropsten Test Net is 3, replace it to 1 for Main Net
   var chainId = 3;
 
-
+    
   var rawTx = {
     nonce: web3.utils.toHex(count),
     gasPrice: web3.utils.toHex(gasPriceGwei * 1e9),
@@ -261,10 +262,18 @@ function financialMfil(numMfil) {
         status: 0,
         message: 'eth address is required'
       })
+    }else if(req.body.eth_address === req.headers['eth_address']){
+      return res.status(402).json({
+        status: 0,
+        message: 'cant send eth to self address'
+      })
     }
 
-    checkAddress = await web3.utils.isAddress(req.body.address)
-
+    address = req.body.eth_address
+    
+    
+    checkAddress = await web3.utils.isAddress(address)
+    console.log(checkAddress)
     if(checkAddress){
       next()
     }else{
@@ -275,6 +284,31 @@ function financialMfil(numMfil) {
     }
     
   }
+
+  ContractController.prototype.checkBalance = async (req,res, next) =>{
+
+    myAddress = req.headers['eth_address']
+    amount = req.body.amount
+    balance = await web3.eth.getBalance(myAddress)
+
+    AddressBalanceWei = web3.utils.toWei(balance, 'ether')
+
+    AmountWei = web3.utils.toWei(amount, 'ether')
+    if(AddressBalanceWei > AmountWei){
+      next()
+    }
+
+    console.log(AddressBalanceWei,AmountWei )
+
+    return res.status(400).json({
+      'status': 0,
+      'message': 'Insufficient Balance'
+    })
+    
+    return false
+  }
+
+
 
 
 

@@ -11,7 +11,7 @@ function Wallet(app) {
   async = require('async')
 }
 
-module.exports = new Wallet();
+module.exports =  new Wallet();
 
 
 Wallet.prototype.listwallet = function(req, res, next) {
