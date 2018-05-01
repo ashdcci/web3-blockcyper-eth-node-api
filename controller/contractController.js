@@ -147,62 +147,7 @@ ContractController.prototype.trans_token = async function(req, res, next) {
 };
 
 
-ContractController.prototype.trans_addr = async function(req, res, next) {
-  try {
-  console.log(`web3 version: ${web3.version}`)
-  var privateKey = new Buffer(process.env.BNP_PRIVATE_KEY, 'hex');
-  // myAddress = '0x3c1fdbEDbC1905D4C53980A535Aa3ff2F0ff40B1';
-  // destAddress = '0x213A85d570e3580b18A079602e3fFdD541C6C651';
 
-  myAddress = req.headers['eth_address']
-  destAddress = req.body.address
-  amount = req.body.amount
-
-  var txValue = web3.utils.numberToHex(web3.utils.toWei('0.7854', 'ether'));
-  var txData = web3.utils.asciiToHex('oh hai mark');
-
-  var count = await web3.eth.getTransactionCount(myAddress);
-  console.log(`num transactions so far: ${count}`);
-
-  var gasPriceGwei = 584;
-  var gasLimit = 30000;
-  // Chain ID of Ropsten Test Net is 3, replace it to 1 for Main Net
-  var chainId = 3;
-
-    
-  var rawTx = {
-    nonce: web3.utils.toHex(count),
-    gasPrice: web3.utils.toHex(gasPriceGwei * 1e9),
-    gasLimit: web3.utils.toHex(gasLimit),
-    to: destAddress,
-    from: myAddress,
-    value: web3.utils.toHex(web3.utils.toWei('0.84487', 'ether'))
-  }
-  console.log(`Raw of Transaction: \n${JSON.stringify(rawTx, null, '\t')}\n------------------------`);
-
-  var tx = new Tx(rawTx);
-  tx.sign(privateKey);
-
-  var serializedTx = tx.serialize();
-
-  console.log(`Attempting to send signed tx:  ${serializedTx.toString('hex')}\n------------------------`);
-
-  web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
-    .then(receipt => console.log(`Receipt info: \n${JSON.stringify(receipt, null, '\t')}\n------------------------`))
-    .catch(err => console.log('send trans err: ' + err));
-
-  // return res.send('api process done')
-
-  }catch(error){
-    console.log(err)
-      return res.status(500).json({
-        status: 0,
-        msg: 'problam in sending balan'
-      })
-  } 
-
-
-};
 
 function financialMfil(numMfil) {
   return Number.parseFloat(numMfil / 1e3).toFixed(3);
@@ -210,7 +155,6 @@ function financialMfil(numMfil) {
 
 
   ContractController.prototype.getTokenBalance = async (req, res, next) =>{
-    console.log(req.headers)
     if(!req.headers['user_id']){
       return res.status(400).json({
         status: 0,
@@ -230,21 +174,21 @@ function financialMfil(numMfil) {
       balance = await contract.methods.balanceOf(tomodel.user_eth_address).call()
       return res.status(200).json({
         status: 1,
-        msg: 'user token balance',
+        message: 'user token balance',
         token: parseInt(balance)
       })
     }catch(err){
-      console.log(err)
+
       return res.status(500).json({
         status: 0,
-        msg: 'problam in getting token balance'
+        message: 'problam in getting token balance'
       })
     }
 
     }else{
       return res.json({
         status: 1,
-        msg: 'user token balance',
+        message: 'user token balance',
         token: 0
       })
     }
@@ -279,32 +223,44 @@ function financialMfil(numMfil) {
     }else{
       return res.status(401).json({
         status: 0,
-        msg: 'Address is invalid'
+        message: 'Address is invalid'
       })
     }
     
   }
 
-  ContractController.prototype.checkBalance = async (req,res, next) =>{
+  ContractController.prototype.checkTokenBalance = async (req,res, next) =>{
 
     myAddress = req.headers['eth_address']
-    amount = req.body.amount
-    balance = await web3.eth.getBalance(myAddress)
+    amount = parseInt(req.body.amount)
+    contractAddress = process.env.BNP_ETH_CONTRACT_ADDR;
+    var abiArray = JSON.parse(fs.readFileSync('./config/wallet.json', 'utf8'));
 
-    AddressBalanceWei = web3.utils.toWei(balance, 'ether')
+    var contract = new web3.eth.Contract(abiArray, contractAddress, {
+      from: myAddress
+    });
+  
+    // How many tokens do I have before sending?
+      var addRessBalance = parseInt(await contract.methods.balanceOf(myAddress).call());
+    // AddressBalanceWei = parseInt(web3.utils.toWei(balance, 'ether'))
 
-    AmountWei = web3.utils.toWei(amount, 'ether')
-    if(AddressBalanceWei > AmountWei){
+    // AmountWei = parseInt(web3.utils.toWei(amount, 'ether'))
+
+    console.log(addRessBalance,amount )
+
+    if(addRessBalance < amount){
+      console.log(58454)
+      return res.status(400).json({
+        'status': 0,
+        'message': 'Insufficient Tokens'
+      })
+      
+    }else{
+      console.log(2258)
+      return false
       next()
     }
-
-    console.log(AddressBalanceWei,AmountWei )
-
-    return res.status(400).json({
-      'status': 0,
-      'message': 'Insufficient Balance'
-    })
-    
+  
     return false
   }
 
