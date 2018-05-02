@@ -72,14 +72,14 @@ ContractController.prototype.index = function(req, res, next) {
 
 
 ContractController.prototype.trans_token = async function(req, res, next) {
-
+  try {
   console.log(`web3 version: ${web3.version}`)
 
-  myAddress = process.env.BNP_ETH_MY_ADDR;
-  destAddress = req.body.dest_address;
+  myAddress = req.headers['eth_address']
+  destAddress = req.body.eth_address;
   contractAddress = process.env.BNP_ETH_CONTRACT_ADDR;
 
-  transferAmount = (req.body.token!==undefined) ? req.body.token : 1000;
+  transferAmount = (req.body.amount!==undefined) ? req.body.amount : 1000;
   web3.eth.defaultAccount = myAddress;
 
 
@@ -119,30 +119,57 @@ ContractController.prototype.trans_token = async function(req, res, next) {
 
   console.log(`Raw of Transaction: \n${JSON.stringify(rawTransaction, null, '\t')}\n------------------------`);
 
+  let private_key_str = req.headers['eth_private_key']
+  req.headers['eth_private_key'] = private_key_str.replace('0x', '');
 
   // The private key for myAddress in .env
-  var privKey = new Buffer(process.env.BNP_PRIVATE_KEY, 'hex');
+  var privKey = new Buffer(req.headers['eth_private_key'], 'hex');
   var tx = new Tx(rawTransaction);
   tx.sign(privKey);
   var serializedTx = tx.serialize();
 
   // Comment out these four lines if you don't really want to send the TX right now
   console.log(`Attempting to send signed tx:  ${serializedTx.toString('hex')}\n------------------------`);
-  var receipt = await web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'));
+    await web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
+                      .then((receipt) =>{
+                        console.log(`Receipt info: \n${JSON.stringify(receipt, null, '\t')}\n------------------------`)
+
+
+
+                        return res.json({
+                          status: 1,
+                          message: ' Token send ',
+                          tx_count: count,
+                          desti_addr: destAddress,
+                          rawTx: rawTransaction,
+                          // balancebefore: balanceBefore,
+                          // balanceafter: balanceAfter,
+                          signTx: serializedTx.toString('hex'),
+                          tx_receipt: receipt
+                        })
+                      } )
+                      .catch((err) => {
+                        console.log('send trans err: ' + err)
+                        return res.status(500).json({
+                          status: 0,
+                          message: 'problam in signed transaction'
+                        })
+                      });
   // The receipt info of transaction, Uncomment for debug
-  console.log(`Receipt info: \n${JSON.stringify(receipt, null, '\t')}\n------------------------`);
+  // console.log(`Receipt info: \n${JSON.stringify(receipt, null, '\t')}\n------------------------`);
   // The balance may not be updated yet, but let's check
   balanceAfter = await contract.methods.balanceOf(myAddress).call();
   console.log(`Balance after send: ${balanceAfter} , ${financialMfil(balanceAfter)} MFIL`);
 
-  return res.json({
-    tx_count: count,
-    rawTx: rawTransaction,
-    balancebefore: balanceBefore,
-    balanceafter: balanceAfter,
-    signTx: serializedTx.toString('hex'),
-    tx_receipt: receipt
-  })
+
+
+}catch(error){
+  console.log(error)
+    return res.status(500).json({
+      status: 0,
+      message: 'problam in sending balan'
+    })
+} 
 
 };
 
@@ -249,19 +276,15 @@ function financialMfil(numMfil) {
     console.log(addRessBalance,amount )
 
     if(addRessBalance < amount){
-      console.log(58454)
       return res.status(400).json({
         'status': 0,
         'message': 'Insufficient Tokens'
       })
       
     }else{
-      console.log(2258)
-      return false
       next()
     }
-  
-    return false
+
   }
 
 
