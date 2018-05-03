@@ -6,7 +6,7 @@ function ContractController(app) {
   tomodel = {};
   // model 	= {};
   crypto = require('crypto');
-
+  model = require('../model/user_model')
   async = require('async')
 }
 var Tx = require('ethereumjs-tx');
@@ -285,6 +285,116 @@ function financialMfil(numMfil) {
       next()
     }
 
+  }
+
+
+  ContractController.prototype.faucet_token = async (socket,user_data) =>{
+    
+    try {
+      console.log(`web3 version: ${web3.version}`)
+    
+      myAddress = process.env.BNP_ETH_MY_ADDR
+      destAddress = user_data.eth_address;
+      contractAddress = process.env.BNP_ETH_CONTRACT_ADDR;
+    
+      transferAmount = 1000;
+      web3.eth.defaultAccount = myAddress;
+    
+    
+      count = await web3.eth.getTransactionCount(myAddress);
+      console.log(`num transactions so far: ${count}`);
+    
+      var abiArray = JSON.parse(fs.readFileSync('./config/wallet.json', 'utf8'));
+    
+      var contract = new web3.eth.Contract(abiArray, contractAddress, {
+        from: myAddress
+      });
+    
+    
+    
+      // How many tokens do I have before sending?
+        var balanceBefore = await contract.methods.balanceOf(myAddress).call();
+        console.log(`Balance before send: ${balanceBefore} ,${financialMfil(balanceBefore)} MFIL\n------------------------`);
+    
+    
+      // I chose gas price and gas limit based on what ethereum wallet was recommending for a similar transaction. You may need to change the gas price!
+      // Use Gwei for the unit of gas price
+      var gasPriceGwei = '5';
+      var gasLimit = 100000;
+      // Chain ID of RinkeBy Test Net is 4, replace it to 1 for Main Net
+      var chainId = 4;
+    
+      var rawTransaction = {
+        nonce: web3.utils.toHex(count),
+        gasPrice: web3.utils.toHex(gasPriceGwei * 1e9),
+        gasLimit: web3.utils.toHex(gasLimit),
+        to: contractAddress,
+        from: myAddress,
+        value: "0x0",//web3.utils.toHex(web3.utils.toWei('0.84487', 'ether')),
+        data: contract.methods.transfer(destAddress, transferAmount).encodeABI(),
+        chainId: chainId
+      }
+    
+      console.log(`Raw of Transaction: \n${JSON.stringify(rawTransaction, null, '\t')}\n------------------------`);
+    
+    
+      // The private key for myAddress in .env
+      var privKey = new Buffer(process.env.BNP_PRIVATE_KEY, 'hex');
+      var tx = new Tx(rawTransaction);
+      tx.sign(privKey);
+      var serializedTx = tx.serialize();
+    
+      // Comment out these four lines if you don't really want to send the TX right now
+      console.log(`Attempting to send signed tx:  ${serializedTx.toString('hex')}\n------------------------`);
+        await web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
+                          .then((receipt) =>{
+                            console.log(`Receipt info: \n${JSON.stringify(receipt, null, '\t')}\n------------------------`)
+    
+                            if(receipt.status == '0x0'){
+                              data = {status: 0}
+                            }else{
+
+                              updateFaucet(socket,user_data.email,user_data.access_token)
+
+                              data = {status: 1}
+                            }
+
+                            socket.emit("complete_faucet_"+user_data.access_token,data);
+                          } )
+                          .catch((err) => {
+                            console.log('send trans err: ' + err)
+                            data = {status: 0}
+                            socket.emit("complete_faucet_"+user_data.access_token,data);
+                          });
+      // The receipt info of transaction, Uncomment for debug
+      // console.log(`Receipt info: \n${JSON.stringify(receipt, null, '\t')}\n------------------------`);
+      // The balance may not be updated yet, but let's check
+      balanceAfter = await contract.methods.balanceOf(myAddress).call();
+      console.log(`Balance after send: ${balanceAfter} , ${financialMfil(balanceAfter)} MFIL`);
+    
+    
+    
+    }catch(error){
+      console.log(error)
+      data = {status: 0}
+      socket.emit("complete_faucet_"+user_data.access_token,data);
+    } 
+
+
+    
+    
+
+  }
+
+
+  updateFaucet = (socket,email,token) => {
+    model.updateFaucet(email, (err, doc) =>{
+      console.log(err, doc)
+      if(err){  
+        data = {status: 0}
+        socket.emit("complete_faucet_"+user_data.access_token,data);
+      }
+    })
   }
 
 

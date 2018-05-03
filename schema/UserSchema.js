@@ -19,6 +19,7 @@ var userSchema = new Schema({
   is_deleted: { type:Number, default:0},
   eth_address: {type: String, default: null},
   eth_private_key: {type: String, default: null},
+  faucet: {type: String, default: 0},
 });
 
 

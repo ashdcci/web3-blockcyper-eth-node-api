@@ -5,8 +5,9 @@ var bodyParser = require('body-parser');
 var morgan      = require('morgan');
 var cors            = require('cors');
 var port = process.env.BNP_PORT;
+var http	 	= require('http');
 var app = express();
-
+var server = http.createServer(app);
 // Body Parser MW
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
@@ -25,6 +26,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 var routes = require('./routes/index')(app);
 
 
+var io = require('./middleware/socket.js')(server);
 
 if(process.env.BNP_ENV=='dev'){
   // error handling for dev mode
@@ -41,7 +43,7 @@ if(process.env.BNP_ENV=='dev'){
 }
 
 
-app.listen(port, function(){
+server.listen(port, function(){
   if(process.env.BNP_ENV=='dev'){
     console.log('Server started on port '+port);
   }

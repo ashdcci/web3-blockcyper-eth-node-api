@@ -61,4 +61,47 @@ authTokenMiddleware.prototype.authToken = function(req, res, next){
 
 }
 
+
+authTokenMiddleware.prototype.authSocketToken = function(token, callback){
+
+
+
+  // check header or url parameters or post parameters for token
+// var token = req.body.token || req.query.token || req.headers['x-access-token'];
+
+// decode token
+if (token) {
+
+  // verifies secret and checks exp
+  jwt.verify(token, superSecret, function(err, decoded) {
+    if (err) {
+      return res.status(400).json({ success: 0, message: 'Failed to authenticate token.' });
+    } else {
+      // if everything is good, save to request for use in other routes
+      tomodel = {}
+      tomodel.access_token = token
+      user_model.getUserHashAddressByToken(tomodel,function(err1,doc){
+
+          if(err1){
+            return callback(500,null);
+          }else if(doc==null){
+            return callback(400, null)
+          }
+          callback(200, doc)
+
+      })
+      return
+    }
+  });
+
+} else {
+
+  // if there is no token
+  // return an error
+  return callback(403,null);
+
+}
+
+}
+
 module.exports = new authTokenMiddleware();

@@ -178,6 +178,41 @@ user_model.prototype.updateEthAddress = function(data, callback){
   })
 }
 
+user_model.prototype.updateToken = function(data, callback){
+  
+  User.findOneAndUpdate({
+    email: data.email
+  }, {
+    access_token: data.access_token
+  }, {
+    upsert: false
+  },function(err,doc){
+    if(err){
+      callback(err, null)
+    }
+    callback(null, doc)
+  })
+}
+
+user_model.prototype.updateFaucet = function(data, callback){
+
+
+  User.findOneAndUpdate({
+    email: data
+  }, {
+    faucet: 1
+  }, {
+    upsert: false
+  },function(err,doc){
+    if(err){
+      callback(err, null)
+    }
+    callback(null, doc)
+  })
+}
+
+
+
 
 user_model.prototype.checkEthAddress = function(data, callback){
   User.findOne({
