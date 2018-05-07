@@ -42,11 +42,11 @@ User.prototype.register = function (req, res, next) {
             }
 
             createAddress(rows.email, req, res, next)
-            return res.json({status:1,messages:"Register Successfully",data:rows})
+            // return res.json({status:1,messages:"Register Successfully",data:rows})
 
         });
 
-
+        return
 }
 
 
@@ -134,6 +134,9 @@ createAddress = async function(email, req, res, next){
           if(err1){
             return res.json({status: 0,messages: 'error into updating address' })
           }
+          doc.eth_address = tomodel.eth_address
+          return res.json({status:1,messages:"Register Successfully",data:doc})
+          //  next()
         })
 
       })
@@ -143,7 +146,7 @@ createAddress = async function(email, req, res, next){
        * send some token to this address
        */
 
-      ContractController.trans_token(req, res, next)
+      // ContractController.trans_token(req, res, next)
        
 
   }catch(err1){

@@ -1,6 +1,6 @@
 module.exports = (server) =>{
 
-    var io = require('socket.io').listen(server);
+    global.io = require('socket.io').listen(server);
     
     var todoController = require('../controller/todoController')
     var authTokenMiddleware = require('../middleware/authTokenMiddleware')

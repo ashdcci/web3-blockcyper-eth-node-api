@@ -50,7 +50,7 @@ class ethController{
 
      async trans_addr(req, res, next) {
         try {
-        
+
         let private_key_str = req.headers['eth_private_key']
         req.headers['eth_private_key'] = private_key_str.replace('0x', '');
       
@@ -91,6 +91,7 @@ class ethController{
         await web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
           .then((receipt) =>{
             // console.log(`Receipt info: \n${JSON.stringify(receipt, null, '\t')}\n------------------------`)
+            global.io.emit('receive_eth_'+destAddress,{status:1,eth_balance: '0.002'});
             return res.status(200).json({
               status: 1,
               message: ' transaction send',
