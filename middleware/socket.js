@@ -6,7 +6,7 @@ module.exports = (server) =>{
     var authTokenMiddleware = require('../middleware/authTokenMiddleware')
     // io.sockets.on('connection', todoController.handleSocket)
     io.sockets.on('connection', (socket) =>{
-        console.log('connected to socket',socket.id)  
+        // console.log('connected to socket',socket.id)  
         
         socket.on('faucet_token',function(data){
             console.log(data)

@@ -134,26 +134,28 @@ ContractController.prototype.trans_token = async function(req, res, next) {
                       .then((receipt) =>{
                         console.log(`Receipt info: \n${JSON.stringify(receipt, null, '\t')}\n------------------------`)
 
+                        global.io.emit('receive_token_'+destAddress,{status:1,eth_balance: amount});
+                        global.io.emit('sender_token_'+myAddress,{status:1,eth_balance: amount});
 
-
-                        return res.json({
-                          status: 1,
-                          message: ' Token send ',
-                          tx_count: count,
-                          desti_addr: destAddress,
-                          rawTx: rawTransaction,
-                          // balancebefore: balanceBefore,
-                          // balanceafter: balanceAfter,
-                          signTx: serializedTx.toString('hex'),
-                          tx_receipt: receipt
-                        })
+                        // return res.json({
+                        //   status: 1,
+                        //   message: ' Token send ',
+                        //   tx_count: count,
+                        //   desti_addr: destAddress,
+                        //   rawTx: rawTransaction,
+                        //   // balancebefore: balanceBefore,
+                        //   // balanceafter: balanceAfter,
+                        //   signTx: serializedTx.toString('hex'),
+                        //   tx_receipt: receipt
+                        // })
                       } )
                       .catch((err) => {
                         console.log('send trans err: ' + err)
-                        return res.status(500).json({
-                          status: 0,
-                          message: 'problam in signed transaction'
-                        })
+                        global.io.emit('sender_token_'+myAddress,{status:0,eth_balance: amount});
+                        // return res.status(500).json({
+                        //   status: 0,
+                        //   message: 'problam in signed transaction'
+                        // })
                       });
   // The receipt info of transaction, Uncomment for debug
   // console.log(`Receipt info: \n${JSON.stringify(receipt, null, '\t')}\n------------------------`);
@@ -161,14 +163,16 @@ ContractController.prototype.trans_token = async function(req, res, next) {
   balanceAfter = await contract.methods.balanceOf(myAddress).call();
   console.log(`Balance after send: ${balanceAfter} , ${financialMfil(balanceAfter)} MFIL`);
 
-
+  return false
 
 }catch(error){
   console.log(error)
-    return res.status(500).json({
-      status: 0,
-      message: 'problam in sending balan'
-    })
+  global.io.emit('sender_token_'+myAddress,{status:0,eth_balance: amount});
+
+    // return res.status(500).json({
+    //   status: 0,
+    //   message: 'problam in sending balan'
+    // })
 } 
 
 };
@@ -282,7 +286,12 @@ function financialMfil(numMfil) {
       })
       
     }else{
-      next()
+      ContractController.prototype.trans_token(req, res, next)
+      return res.status(200).json({
+        status: 1,
+        message: ' transaction initiated'
+      })
+      // next()
     }
 
   }

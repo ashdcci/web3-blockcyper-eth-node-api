@@ -54,7 +54,7 @@ class ethController{
         let private_key_str = req.headers['eth_private_key']
         req.headers['eth_private_key'] = private_key_str.replace('0x', '');
       
-      
+      console.log(req.headers)
         let privateKey = new Buffer(req.headers['eth_private_key'], 'hex');
         let myAddress = req.headers['eth_address']
         let destAddress = req.body.eth_address
@@ -86,34 +86,30 @@ class ethController{
       
         let serializedTx = tx.serialize();
         
-        // console.log(`Attempting to send signed tx:  ${serializedTx.toString('hex')}\n------------------------`);
+        console.log(`Attempting to send signed tx:  ${serializedTx.toString('hex')}\n------------------------`);
       
         await web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
           .then((receipt) =>{
-            // console.log(`Receipt info: \n${JSON.stringify(receipt, null, '\t')}\n------------------------`)
-            global.io.emit('receive_eth_'+destAddress,{status:1,eth_balance: '0.002'});
-            return res.status(200).json({
-              status: 1,
-              message: ' transaction send',
-              tx_hash:receipt
-            })
+            console.log(`Receipt info: \n${JSON.stringify(receipt, null, '\t')}\n------------------------`)
+            global.io.emit('receive_eth_'+destAddress,{status:1,eth_balance: amount});
+            global.io.emit('sender_eth_'+myAddress,{status:1,eth_balance: amount});
+            // global.io.emit('sender_eth_live_'+myAddress,{status:1,eth_balance: amount,eth_address: myAddress});
+            return false
+            
           } )
           .catch((err) => {
             console.log('send trans err: ' + err)
-            return res.status(500).json({
-              status: 0,
-              message: 'problam in signed transaction'
-            })
+            global.io.emit('sender_eth_'+myAddress,{status:0,eth_balance: amount});
+            return false
           });
       
         }catch(error){
           console.log(error)
-            return res.status(500).json({
-              status: 0,
-              message: 'problam in sending balan'
-            })
+          global.io.emit('sender_eth_err_'+myAddress,{status:0,eth_balance: amount});
+          return false           
         } 
       
+        return
       
       }
 
@@ -162,7 +158,14 @@ class ethController{
           })
           
         }else{
-          next()
+
+          ethController.prototype.trans_addr(req, res, next)
+          return res.status(200).json({
+              status: 1,
+              message: ' transaction initiated'
+            })
+
+          // next()
         }
       
         return false
