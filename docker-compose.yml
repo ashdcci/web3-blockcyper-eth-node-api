@@ -4,9 +4,13 @@ services:
     build: .
     ports:
     - "3003:3003"
+    env_file:
+    - .env
     depends_on:
     - mongo
   mongo:
     image: mongo
+    volumes:
+      - ./data:/data/db
     ports:
-    - "27017:27017"
+      - "27017:27017"
