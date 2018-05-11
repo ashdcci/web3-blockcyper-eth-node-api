@@ -100,7 +100,7 @@ Transaction.prototype.createTransaction = function(req, res, next) {
           tomodel.sender_id = doc._id
           tomodel.amount = parseInt(req.body.amount)
           tomodel.transaction_hash = finaltx.tx.hash
-
+          tomodel.tx_type = 1
           saveUserTransaction(tomodel, res, next)
 
           return res.status(200).json({

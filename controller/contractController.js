@@ -8,6 +8,7 @@ function ContractController(app) {
   crypto = require('crypto');
   model = require('../model/user_model')
   async = require('async')
+  transaction_model = require('../model/transaction_model')
 }
 var Tx = require('ethereumjs-tx');
 var fs = require('fs')
@@ -137,6 +138,15 @@ ContractController.prototype.trans_token = async function(req, res, next) {
                         global.io.emit('receive_token_'+destAddress,{status:1,eth_balance: amount});
                         global.io.emit('sender_token_'+myAddress,{status:1,eth_balance: amount});
 
+
+                        tomodel.sender_address = doc.user_address
+                        tomodel.recr_address = req.body.to_address
+                        tomodel.sender_id = doc._id
+                        tomodel.amount = parseInt(req.body.amount)
+                        tomodel.transaction_hash = finaltx.tx.hash
+                        tomodel.tx_type = 1
+                        saveUserTransaction(tomodel, res, next)
+
                         // return res.json({
                         //   status: 1,
                         //   message: ' Token send ',
@@ -176,6 +186,22 @@ ContractController.prototype.trans_token = async function(req, res, next) {
 } 
 
 };
+
+
+saveUserTransaction = function(tomodel, res, next) {
+  transaction_model.saveUserTransaction(tomodel, (err, doc) => {
+    if (err) { // can send error check to websocket
+      
+      return res.status(500).json({
+        status: 0,
+        message: 'problam in saving transaction details',
+        error: err
+      })
+    }
+  })
+
+  return
+}
 
 
 
