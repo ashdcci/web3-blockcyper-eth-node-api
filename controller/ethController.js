@@ -6,6 +6,7 @@ data = {};
 tomodel = {};
 crypto = require('crypto')
 async = require('async')
+transaction_model = require('../model/transaction_model')
 
 class ethController{
     
@@ -21,7 +22,7 @@ class ethController{
 
 
     async getEthBalance(req, res, next) {
-        
+      this.checkMethod()
         if(!req.headers['eth_address']){
             return res.status(401).json({
                 status: 0,
@@ -31,7 +32,7 @@ class ethController{
         try{            
             let myAddress = req.headers['eth_address']
             let balance = await web3.eth.getBalance(myAddress)
-
+          
             return res.status(200).json({
                 status: 1,
                 msg: 'eth address balance',
@@ -53,8 +54,8 @@ class ethController{
 
         let private_key_str = req.headers['eth_private_key']
         req.headers['eth_private_key'] = private_key_str.replace('0x', '');
-      
-      console.log(req.headers)
+          console.log(private_key_str,req.headers['eth_private_key'])
+        let myId = req.headers['user_id']
         let privateKey = new Buffer(req.headers['eth_private_key'], 'hex');
         let myAddress = req.headers['eth_address']
         let destAddress = req.body.eth_address
@@ -94,6 +95,14 @@ class ethController{
             global.io.emit('receive_eth_'+destAddress,{status:1,eth_balance: amount});
             global.io.emit('sender_eth_'+myAddress,{status:1,eth_balance: amount});
             // global.io.emit('sender_eth_live_'+myAddress,{status:1,eth_balance: amount,eth_address: myAddress});
+            tomodel.sender_address = myAddress
+            tomodel.recr_address = destAddress
+            tomodel.sender_id = myId
+            tomodel.amount = parseInt(req.body.amount)
+            tomodel.transaction_hash = receipt.transactionHash
+            tomodel.tx_type = 2
+            this.saveUserTransaction(tomodel, res, next)
+
             return false
             
           } )
@@ -111,6 +120,22 @@ class ethController{
       
         return
       
+      }
+
+
+      saveUserTransaction(tomodel, res, next) {
+        transaction_model.saveUserTransaction(tomodel, (err, doc) => {
+          if (err) { // can send error check to websocket
+            
+            return res.status(500).json({
+              status: 0,
+              message: 'problam in saving transaction details',
+              error: err
+            })
+          }
+        })
+      
+        return
       }
 
        async isAddress(req, res, next){
@@ -143,6 +168,10 @@ class ethController{
         
       }
 
+    checkMethod(){
+      console.log('hello from check method')
+    }
+
     async checkBalance(req,res, next){
 
         let myAddress = req.headers['eth_address']
@@ -151,6 +180,7 @@ class ethController{
         let AddressBalanceWei = parseInt(web3.utils.toWei(balance, 'ether'))
         let AmountWei = parseInt(web3.utils.toWei(amount, 'ether'))
     
+        
         if(AddressBalanceWei < AmountWei){
           return res.status(400).json({
             'status': 0,

@@ -312,3 +312,34 @@ Transaction.prototype.getTransactions = function(req, res, next){
 
     return
 }
+
+
+Transaction.prototype.getEthTransactions = function(req, res, next){
+  if(!req.headers['user_id']){
+    return res.status(400).json({
+      status: 0,
+      message: 'user details not found'
+    })
+  }
+  tomodel._id = req.headers['user_id']
+  tomodel.eth_address = req.headers['eth_address']
+  tomodel.tx_type = (req.body.tx_type!==undefined) ? parseInt(req.body.tx_type) : 0
+
+  transaction_model.getEthTransactions(tomodel, function(err, doc){
+    
+    if(err){
+      return res.json({
+        status: 0,
+        message: 'problam in fetch data'
+      })
+    }
+    return res.status(200).json({
+      status:1,
+      message: 'transactions Fetch',
+      tx_data: doc
+    })
+
+  })
+
+  return
+}

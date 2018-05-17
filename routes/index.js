@@ -48,15 +48,10 @@ module.exports = function(app, server){
     app.get('/transaction/getSendMoney',authTokenMiddleware.authToken, transactionController.getSendMoney)
     app.get('/transaction/getRecdMoney',authTokenMiddleware.authToken, transactionController.getRecdMoney)
     app.post('/transaction/getTransactions',authTokenMiddleware.authToken , transactionController.getTransactions)
+    app.post('/transaction/getEthTransactions',authTokenMiddleware.authToken , transactionController.getEthTransactions)
     app.post('/contract/new-eth-address',authTokenMiddleware.authToken,addressController.checkEthAddress, addressController.newEthAddress )
     app.post('/contract/getTokenBalance', authTokenMiddleware.authToken, ContractController.getTokenBalance)
     app.post('/eth/getBalance',authTokenMiddleware.authToken,ethController.getEthBalance)
-
-
-
-    // app.get('/socket.io/', function(req, res, next){
-    //   res.status(200).json({status:0,msg:'not found call'})
-    // })
     app.get('*', (req, res, next)=>{
       res.status(404).json({status:0,msg:'not found call'})
     })

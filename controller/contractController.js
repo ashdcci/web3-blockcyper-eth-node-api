@@ -77,6 +77,7 @@ ContractController.prototype.trans_token = async function(req, res, next) {
   console.log(`web3 version: ${web3.version}`)
 
   myAddress = req.headers['eth_address']
+  myId = req.headers['user_id']
   destAddress = req.body.eth_address;
   contractAddress = process.env.BNP_ETH_CONTRACT_ADDR;
 
@@ -139,12 +140,12 @@ ContractController.prototype.trans_token = async function(req, res, next) {
                         global.io.emit('sender_token_'+myAddress,{status:1,eth_balance: amount});
 
 
-                        tomodel.sender_address = doc.user_address
-                        tomodel.recr_address = req.body.to_address
-                        tomodel.sender_id = doc._id
+                        tomodel.sender_address = myAddress
+                        tomodel.recr_address = destAddress
+                        tomodel.sender_id = myId
                         tomodel.amount = parseInt(req.body.amount)
-                        tomodel.transaction_hash = finaltx.tx.hash
-                        tomodel.tx_type = 1
+                        tomodel.transaction_hash = receipt.transactionHash
+                        tomodel.tx_type = 3
                         saveUserTransaction(tomodel, res, next)
 
                         // return res.json({
