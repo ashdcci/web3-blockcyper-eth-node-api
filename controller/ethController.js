@@ -98,7 +98,7 @@ class ethController{
             tomodel.sender_address = myAddress
             tomodel.recr_address = destAddress
             tomodel.sender_id = myId
-            tomodel.amount = parseInt(req.body.amount)
+            tomodel.amount = amount
             tomodel.transaction_hash = receipt.transactionHash
             tomodel.tx_type = 2
             this.saveUserTransaction(tomodel, res, next)
@@ -124,6 +124,8 @@ class ethController{
 
 
       saveUserTransaction(tomodel, res, next) {
+
+        console.log(tomodel)
         transaction_model.saveUserTransaction(tomodel, (err, doc) => {
           if (err) { // can send error check to websocket
             

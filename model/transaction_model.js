@@ -41,7 +41,7 @@ transaction_model.prototype.saveUserTransaction = function(data, callback){
         tomodel.recr_address = data.recr_address
         tomodel.sender_id = data.sender_id
         tomodel.recr_id = user._id
-        tomodel.amount = parseInt(data.amount)
+        tomodel.amount = data.amount
         tomodel.transaction_hash = data.transaction_hash
         tomodel.tx_type = data.tx_type
 

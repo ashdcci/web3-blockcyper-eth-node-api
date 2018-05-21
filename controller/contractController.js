@@ -143,7 +143,7 @@ ContractController.prototype.trans_token = async function(req, res, next) {
                         tomodel.sender_address = myAddress
                         tomodel.recr_address = destAddress
                         tomodel.sender_id = myId
-                        tomodel.amount = parseInt(req.body.amount)
+                        tomodel.amount = req.body.amount
                         tomodel.transaction_hash = receipt.transactionHash
                         tomodel.tx_type = 3
                         saveUserTransaction(tomodel, res, next)
