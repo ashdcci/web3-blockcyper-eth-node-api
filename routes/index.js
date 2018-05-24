@@ -52,7 +52,7 @@ module.exports = function(app, server){
     app.post('/contract/new-eth-address',authTokenMiddleware.authToken,addressController.checkEthAddress, addressController.newEthAddress )
     app.post('/contract/getTokenBalance', authTokenMiddleware.authToken, ContractController.getTokenBalance)
     app.post('/eth/getBalance',authTokenMiddleware.authToken,ethController.getEthBalance)
-    app.get('*', (req, res, next)=>{
-      res.status(404).json({status:0,msg:'not found call'})
+    app.use('*', (req, res, next)=>{
+      res.status(404).json({status:0,msg:'api call undefined'})
     })
 }
