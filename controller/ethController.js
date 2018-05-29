@@ -22,7 +22,7 @@ class ethController{
 
 
     async getEthBalance(req, res, next) {
-      this.checkMethod()
+      
         if(!req.headers['eth_address']){
             return res.status(401).json({
                 status: 0,
@@ -51,22 +51,24 @@ class ethController{
 
      async trans_addr(req, res, next) {
         try {
-
+        
         let private_key_str = req.headers['eth_private_key']
         req.headers['eth_private_key'] = private_key_str.replace('0x', '');
-          console.log(private_key_str,req.headers['eth_private_key'])
         let myId = req.headers['user_id']
         let privateKey = new Buffer(req.headers['eth_private_key'], 'hex');
         let myAddress = req.headers['eth_address']
         let destAddress = req.body.eth_address
         let amount = req.body.amount
-      
+        web3.eth.defaultAccount = myAddress
         let txValue = web3.utils.numberToHex(web3.utils.toWei(amount, 'ether'));
         let txData = web3.utils.asciiToHex('oh hai mark');
-      
-        let count = await web3.eth.getTransactionCount(myAddress);
+        await web3.personal.unlockAccount(myAddress, 'mypass')
+
+        // let ress = await web3.eth.personal.sign(web3.utils.utf8ToHex("Hello world"),myAddress,"test password!")
+        // console.log(` ress:  ${JSON.stringify(ress, null, '\t')}\n------------------------`);
+        let count = await web3.eth.getTransactionCount(web3.eth.defaultAccount);
         count = (count == 0) ? 1 : count
-        let gasPriceGwei = '5';
+        let gasPriceGwei = 12;
         let gasLimit = 100000;
         // Chain ID of Ropsten Test Net is 3, replace it to 1 for Main Net
         let chainId = 4;
@@ -84,9 +86,9 @@ class ethController{
       
         let tx = new Tx(rawTx);
         tx.sign(privateKey);
-      
-        let serializedTx = tx.serialize();
         
+        let serializedTx = tx.serialize();
+        console.log(` tx:  ${JSON.stringify(rawTx, null, '\t')}\n------------------------`);
         console.log(`Attempting to send signed tx:  ${serializedTx.toString('hex')}\n------------------------`);
       
         await web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))

@@ -229,14 +229,15 @@ function financialMfil(numMfil) {
       var contract = new web3.eth.Contract(abiArray, process.env.BNP_ETH_CONTRACT_ADDR, {
         from: process.env.BNP_ETH_MY_ADDR
       })
-      balance = await contract.methods.balanceOf(tomodel.user_eth_address).call()
+      balance = await contract.methods.balanceOf(tomodel.user_eth_address).encodeABI()
+      console.log(balance)
       return res.status(200).json({
         status: 1,
         message: 'user token balance',
         token: parseInt(balance)
       })
     }catch(err){
-
+      console.log(err)
       return res.status(500).json({
         status: 0,
         message: 'problam in getting token balance'

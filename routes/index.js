@@ -14,7 +14,7 @@ module.exports = function(app, server){
    var userController = require('../controller/userController')
    var mainController = require('../controller/controller')
    var ContractController = require('../controller/contractController')
-
+  var chatController = require('../controller/chatController')
   var ethController = require("../controller/ethController");
 
    
@@ -52,6 +52,8 @@ module.exports = function(app, server){
     app.post('/contract/new-eth-address',authTokenMiddleware.authToken,addressController.checkEthAddress, addressController.newEthAddress )
     app.post('/contract/getTokenBalance', authTokenMiddleware.authToken, ContractController.getTokenBalance)
     app.post('/eth/getBalance',authTokenMiddleware.authToken,ethController.getEthBalance)
+    app.post('/chat/insert',chatController.insertMessage)
+
     app.use('*', (req, res, next)=>{
       res.status(404).json({status:0,msg:'api call undefined'})
     })

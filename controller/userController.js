@@ -112,6 +112,7 @@ createAddress = async function(email, req, res, next){
   
   
   try{
+
       account = await web3.eth.accounts.create(web3.utils.randomHex(32))
 
       bcapi.genAddr({},function(err, rows){
