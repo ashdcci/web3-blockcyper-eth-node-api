@@ -60,14 +60,14 @@ user_model.prototype.postRegister = function(data, callback) {
 
 user_model.prototype.postLogin = function(data, callback) {
 
-  pwd = crypto.createHash("md5")
+  
+  data.pwd = crypto.createHash("md5")
     .update(data.password)
     .digest('hex');
 
-
   User.findOne({
       email: data.email,
-      password: pwd
+      password: data.pwd
     }).exec()
     .then(function(doc) {
 
@@ -219,6 +219,18 @@ user_model.prototype.checkEthAddress = function(data, callback){
     access_token: data.access_token,
     eth_address:{$ne:""}
   },function(err,doc){
+    if(err){
+      callback(err, null)
+    }
+    callback(null, doc)
+  })
+}
+
+
+user_model.prototype.getNameValidetes = (data, callback) =>{
+  User.findOne({
+    first_name: data.name
+  },(err, doc)=>{
     if(err){
       callback(err, null)
     }

@@ -29,7 +29,17 @@ User.prototype.register = function (req, res, next) {
         })
       }
 
-        req.body.access_token = createToken(req.body.email)
+
+      let email = req.body.email
+      let password = req.body.password
+
+        req.body.access_token = createToken(email)
+        req.body.pwd = crypto.createHash("md5")
+        .update(password)
+        .digest('hex');
+
+      let updatedPwd = req.body.pwd
+
         tomodel = {}
 
         user_model.postRegister(req.body,function(err,rows){
@@ -41,7 +51,7 @@ User.prototype.register = function (req, res, next) {
               return res.status(401).json({"status":0,"messages":{"location":"body","param":"email","msg":"This Email already Exist into System"}})
             }
 
-            createAddress(rows.email, req, res, next)
+            createAddress(rows.email,updatedPwd, req, res, next)
             // return res.json({status:1,messages:"Register Successfully",data:rows})
 
         });
@@ -59,7 +69,7 @@ User.prototype.register = function (req, res, next) {
     }
 
     tomodel = {}
-
+    console.log(req.body)
     user_model.postLogin(req.body,function(err,rows){
         if(err){
             return res.status(500).json({"status":0,"messages":{"location":"body","param":"email","msg":"Internal Error has Occured"}})
@@ -107,13 +117,15 @@ User.prototype.register = function (req, res, next) {
  * @callback cb
  * @method genAddr
  */
-createAddress = async function(email, req, res, next){
+createAddress = async function(email,pwd, req, res, next){
   tomodel = {}
   
   
   try{
 
-      account = await web3.eth.accounts.create(web3.utils.randomHex(32))
+      // account = await web3.eth.accounts.create('core2duo')
+      account = await web3.eth.personal.newAccount(pwd)
+      console.log(account)
 
       bcapi.genAddr({},function(err, rows){
 
@@ -126,8 +138,9 @@ createAddress = async function(email, req, res, next){
         tomodel.user_address = rows.address
         tomodel.address_public_key = rows.public
         tomodel.address_private_key = rows.private
+
         tomodel.wif = rows.wif
-        tomodel.eth_address = (account.address!==undefined) ? account.address : '---' 
+        tomodel.eth_address = (account.address!==undefined) ? account : '---' 
         tomodel.eth_private_key = (account.privateKey!==undefined) ? account.privateKey : '---'
         req.body.desti_address = tomodel.eth_address
 
@@ -159,12 +172,12 @@ createAddress = async function(email, req, res, next){
 }
 
 
-createToken = function(id) {
+createToken = function(email) {
 
   var exp_time = Math.floor(Date.now() / 1000) + (3600 * 3600);
   var token = jwt.sign({
     exp: exp_time,
-    data: id + Math.floor((Math.random() * 1000000000) + 1).toString()
+    data: email
   }, superSecret);
   return token;
 

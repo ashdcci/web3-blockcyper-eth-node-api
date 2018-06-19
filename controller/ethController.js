@@ -29,10 +29,41 @@ class ethController{
                 msg: 'eth address is required'
             })
         }
+
+
+        // let rawKeyResult = await web3.eth.personal.importRawKey('0x24ada0012240067051f129330e2eff73a24dc0be32acf8888a67be6ccc703705','core2duo')
+        // console.log(rawKeyResult)
+        // let myAddress1 = '0xBa0BFb07A6023A50d0B626f6a97E9A7451B9a91F'
+        // web3.eth.personal.unlockAccount(myAddress1, 'core2duo', 600)
+        // .then((result) => {
+        //   console.log(result)
+        //   if (result) {
+        //     return res.status(200).json({status:1,msg:'account unlocked for 600 ms'})
+        //   } else {
+        //     return res.status(200).json({status:0,msg:'account not lockes'})
+        //   }
+        // })
+        // .catch(errorResult => {
+        //   console.log(errorResult)
+        //   return res.status(200).json({status:0,msg:'account not locked'})
+        // })
+
+        // return 
+
+
         try{            
             let myAddress = req.headers['eth_address']
+            console.log(myAddress)
             let balance = await web3.eth.getBalance(myAddress)
-          
+            // let importKey = await web3.eth.personal.importRawKey(req.headers['eth_private_key'],'core2duo')
+
+            // let unlock = await web3.eth.personal.unlockAccount(myAddress,'core2duo',0)
+            // var unlockResult = await web3.eth.personal.unlockAccount(myAddress, 'core2duo', 120);
+                  // .then((rs) =>console.log(rs) )
+                  // .catch((er1) =>console.log(er1))
+
+
+                  //  console.log(unlockResult, importKey)
             return res.status(200).json({
                 status: 1,
                 msg: 'eth address balance',
@@ -62,7 +93,7 @@ class ethController{
         web3.eth.defaultAccount = myAddress
         let txValue = web3.utils.numberToHex(web3.utils.toWei(amount, 'ether'));
         let txData = web3.utils.asciiToHex('oh hai mark');
-        await web3.personal.unlockAccount(myAddress, 'mypass')
+        // await web3.personal.unlockAccount(myAddress, 'mypass')
 
         // let ress = await web3.eth.personal.sign(web3.utils.utf8ToHex("Hello world"),myAddress,"test password!")
         // console.log(` ress:  ${JSON.stringify(ress, null, '\t')}\n------------------------`);

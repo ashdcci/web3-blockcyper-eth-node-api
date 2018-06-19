@@ -4,6 +4,7 @@ var path = require('path');
 var bodyParser = require('body-parser');
 var morgan      = require('morgan');
 var cors            = require('cors');
+var passport = require('passport');
 var port = process.env.BNP_PORT;
 var http	 	= require('http');
 var app = express();
@@ -20,6 +21,12 @@ app.engine('html', require('ejs').renderFile);
 
 //morge dev mode set
 app.use(morgan('dev'));
+
+
+// Init passport
+app.use(passport.initialize());
+require('./config/passport')(passport);
+
 
 // Set Static Folder
 app.use(express.static(path.join(__dirname, 'public')));

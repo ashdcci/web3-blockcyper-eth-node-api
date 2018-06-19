@@ -3,8 +3,21 @@
 module.exports = function(app, server){
 
   var http	 	= require('http');
+  var request_obj = require('request');
+  var url = require('url');
   var server = http.createServer(app);
   var io = require('socket.io').listen(server);
+  var passport = require('passport');
+  var jwt = require('jsonwebtoken');
+
+// Example of required auth: protect dashboard route with JWT
+app.get('/dashboard', passport.authenticate('jwt', {
+  session: false
+}), function(req, res, next) {
+  res.json({'It worked! User id is: ': req.user._id});
+});
+
+
   /**
    * Controller Calling Definations
    */
@@ -52,7 +65,44 @@ module.exports = function(app, server){
     app.post('/contract/new-eth-address',authTokenMiddleware.authToken,addressController.checkEthAddress, addressController.newEthAddress )
     app.post('/contract/getTokenBalance', authTokenMiddleware.authToken, ContractController.getTokenBalance)
     app.post('/eth/getBalance',authTokenMiddleware.authToken,ethController.getEthBalance)
-    app.post('/chat/insert',chatController.insertMessage)
+    app.post('/chat/insert',authTokenMiddleware.authToken,userMiddleware.checkUserName,chatController.insertMessage)
+    app.get('/chat/get-single-thread/:recr_name',authTokenMiddleware.authToken,chatController.fetchSingleThread)
+    app.get('/chat/get-threads-list',authTokenMiddleware.authToken,chatController.fetchAllThread)
+
+
+    
+
+    app.post('/address/new-address', (req,res,next)=>{
+        
+      // var options = {
+      //   host: 'https://api.blockcypher.com/',
+      //   port: null,
+      //   path: '/v1/beth/test/addrs?token='+process.env.BNP_CYPHER_API_TOKEN,
+      //   method: 'POST'
+      // };
+
+      // // var options = new URL('https://api.blockcypher.com/v1/beth/test/addrs?token='+process.env.BNP_CYPHER_API_TOKEN);
+
+      // console.log(options)
+      // var req = http.request(options, function(res) {
+      //   console.log(945154)
+      //   console.log('STATUS: ' + res.statusCode);
+      //   console.log('HEADERS: ' + JSON.stringify(res.headers));
+      //   res.setEncoding('utf8');
+      //   res.on('data', function (chunk) {
+      //     console.log('BODY: ' + chunk);
+      //   });
+      // });
+
+      request_obj('https://api.blockcypher.com/v1/beth/test/addrs?token='+process.env.BNP_CYPHER_API_TOKEN, function (error, response, body) {
+        console.log('error:', error); // Print the error if one occurred
+        console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+        console.log('body:', body); // Print the HTML for the Google homepage.
+      });
+
+      
+      res.status(200).json(54585412)
+    })
 
     app.use('*', (req, res, next)=>{
       res.status(404).json({status:0,msg:'api call undefined'})

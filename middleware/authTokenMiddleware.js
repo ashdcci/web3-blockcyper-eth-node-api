@@ -39,6 +39,7 @@ authTokenMiddleware.prototype.authToken = function(req, res, next){
 
             req.headers['user_id'] = doc._id
             req.headers['user_address'] = doc.user_address
+            req.headers['first_name'] = doc.first_name
             req.headers['eth_address'] = doc.eth_address
             req.headers['eth_private_key'] = doc.eth_private_key
             next();
