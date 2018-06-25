@@ -9,7 +9,7 @@ var MessageSchema = new Schema({
     created_at: { type: Date, default: moment().format('YYYY-MM-DD HH:mm:ss') },
     updated_at: { type: Date, default: moment().format('YYYY-MM-DD HH:mm:ss') },
     deleted_at: { type: String, default: null },
-    is_deleted: { type:Number, default:0}
+    is_deleted: { type: Array, default:[]}
   });
 
 
@@ -19,7 +19,7 @@ var chatSchema = new Schema({
       type: [MessageSchema],
       default: undefined    
     },
-    is_deleted: { type:Number, default:0},
+    is_deleted: { type: Array, default:[]},
     created_at: { type: Date, default: moment().format('YYYY-MM-DD HH:mm:ss') },
     updated_at: { type: Date, default: moment().format('YYYY-MM-DD HH:mm:ss') },
     deleted_at: { type: String, default: null },
@@ -29,3 +29,4 @@ var chatSchema = new Schema({
   module.exports = {
     chatSchema: chatSchema
   }
+
