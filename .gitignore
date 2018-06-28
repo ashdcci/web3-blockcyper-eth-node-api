@@ -1,7 +1,6 @@
 # Logs
 logs
 *.log
-.env
 # Runtime data
 pids
 *.pid
@@ -39,3 +38,4 @@ config/development_local.json
 package-lock.json
 
 build/
+.env
