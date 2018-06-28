@@ -8,8 +8,8 @@ function User(app){
   jwt = require('jsonwebtoken')
   superSecret = 'b1N3xXrpwNPrsLZH2GmCa95TbuU6hvvKQYVDcKSKrg4PfiOCm_X8A5G_hpLvTmD_'
   user_model 	= require('../model/user_model')
+  chat_model = require('../model/chat_model')
   async = require('async')
-
   crypto  = require('crypto')
 }
 var ContractController = require('../controller/contractController')
@@ -195,6 +195,24 @@ User.prototype.edit_profile = function(req, res, next){
     if(err){
         return res.status(500).json({"status":0,"messages":{"location":"body","param":"email","msg":"Internal Error has Occured"}})
     }
+    if(tomodel.first_name!=''){
+      updateUserNameThread(req, res, next)
+    }
+    
+
     return res.status(200).json({status:1,messages:"Profile Updated"})
 });
+}
+
+
+updateUserNameThread = (req, res, next) =>{
+  
+  tomodel.user_name = req.body.first_name
+  tomodel.first_name = req.headers['first_name']
+  chat_model.updateUserNameThread(tomodel, (err, rows) =>{
+      if(err){
+          console.log(err)
+      }
+  })
+  return
 }

@@ -123,7 +123,6 @@ user_model.prototype.getUserHashAddressByToken = function(data, callback){
         if(err){
           callback(err, null)
         }else{
-
           callback(null, doc)
         }
     })
@@ -231,6 +230,34 @@ user_model.prototype.getNameValidetes = (data, callback) =>{
   User.findOne({
     first_name: data.name
   },(err, doc)=>{
+    if(err){
+      callback(err, null)
+    }
+    callback(null, doc)
+  })
+}
+
+
+user_model.prototype.findUserForRoom = (data, callback) =>{
+
+  User.find({
+   $and:[{
+          $or:[
+            {'first_name':{ $regex:data.search_str, $options: 'g'} },
+            {'last_name':{ $regex:data.search_str, $options: 'g'} },
+            {'email':{ $regex:data.search_str, $options: 'g'} },
+            {'eth_address':{ $regex:data.search_str, $options: 'g'} }
+          ],
+        },
+        {
+          $and:[
+            {'email':{"$ne":""} },
+            {'first_name':{"$nin":[null,""]} },
+            {'eth_address':{"$nin":[null,""]} },
+          ],
+        }
+      ] 
+  },{_id:1,first_name:1,last_name:1,email:1,eth_address:1}, (err , doc) =>{
     if(err){
       callback(err, null)
     }

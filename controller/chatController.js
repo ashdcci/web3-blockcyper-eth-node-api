@@ -7,6 +7,7 @@ let tomodel = {};
 crypto = require('crypto')
 async = require('async')
 chat_model = require('../model/chat_model')
+user_model = require('../model/user_model')
 
 class chatController{   
 
@@ -177,33 +178,23 @@ class chatController{
     }
 
 
-
-    updateUserNameThread(req, res, next){
-
-        console.log(req.headers)
-
-        if(!req.body.first_name){
-            return res.status(401).json({
-                status:0,
-                message:'first_name is missing'
-            })
-        }
-        tomodel.user_name = req.body.first_name
-        tomodel.first_name = req.headers['first_name']
-        chat_model.updateUserNameThread(tomodel, (err, rows) =>{
+    searchUserForRoom(req, res, next){
+        tomodel.search_str = (req.body.search!==undefined) ? req.body.search : ''
+        user_model.findUserForRoom(tomodel, (err, rows) =>{
             if(err){
                 return res.status(500).json({
-                    status: 0,
-                    message: 'problam in updation of username'
+                    status : 0,
+                    message : 'problam in fetch user'
                 })
             }
 
             return res.status(200).json({
-                status:1,
-                data:rows
+                status: 1,
+                message: 'user data',
+                count : rows.length,
+                user_data: rows
             })
         })
-
     }
     
 }

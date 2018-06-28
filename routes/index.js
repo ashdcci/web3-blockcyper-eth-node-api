@@ -69,8 +69,8 @@ app.get('/dashboard', passport.authenticate('jwt', {
     app.get('/chat/get-single-thread/:recr_name',authTokenMiddleware.authToken,chatController.fetchSingleThread)
     app.get('/chat/get-threads-list',authTokenMiddleware.authToken,chatController.fetchAllThread)
     app.delete('/chat/delete-message',authTokenMiddleware.authToken,chatController.deleteMessage)
-    app.put('/chat/update-username',authTokenMiddleware.authToken,chatController.updateUserNameThread)
-
+    // app.put('/chat/update-username',authTokenMiddleware.authToken,chatController.updateUserNameThread)
+    app.post('/chat/search-user', authTokenMiddleware.authToken, chatController.searchUserForRoom)
 
     
 
