@@ -55,6 +55,8 @@ class ethController{
             let myAddress = req.headers['eth_address']
             console.log(myAddress)
             let balance = await web3.eth.getBalance(myAddress)
+            let sync = await web3.eth.isSyncing()
+            console.log(sync)
             // let importKey = await web3.eth.personal.importRawKey(req.headers['eth_private_key'],'core2duo')
 
             // let unlock = await web3.eth.personal.unlockAccount(myAddress,'core2duo',0)
