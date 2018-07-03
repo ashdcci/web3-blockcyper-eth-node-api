@@ -97,7 +97,7 @@ ContractController.prototype.trans_token = async function(req, res, next) {
 
 
   // How many tokens do I have before sending?
-    var balanceBefore = await contract.methods.balanceOf(myAddress).call();
+    var balanceBefore = contract.methods.balanceOf(myAddress).call();
     console.log(`Balance before send: ${balanceBefore} ,${financialMfil(balanceBefore)} MFIL\n------------------------`);
 
 
@@ -171,7 +171,7 @@ ContractController.prototype.trans_token = async function(req, res, next) {
   // The receipt info of transaction, Uncomment for debug
   // console.log(`Receipt info: \n${JSON.stringify(receipt, null, '\t')}\n------------------------`);
   // The balance may not be updated yet, but let's check
-  balanceAfter = await contract.methods.balanceOf(myAddress).call();
+  balanceAfter = contract.methods.balanceOf(myAddress).call();
   console.log(`Balance after send: ${balanceAfter} , ${financialMfil(balanceAfter)} MFIL`);
 
   return false
@@ -229,8 +229,8 @@ function financialMfil(numMfil) {
       var contract = new web3.eth.Contract(abiArray, process.env.BNP_ETH_CONTRACT_ADDR, {
         from: process.env.BNP_ETH_MY_ADDR
       })
-      balance = await contract.methods.balanceOf(tomodel.user_eth_address).encodeABI()
-      console.log(balance)
+      balance = await contract.methods.balanceOf(tomodel.user_eth_address).call()
+      
       return res.status(200).json({
         status: 1,
         message: 'user token balance',
@@ -389,14 +389,12 @@ function financialMfil(numMfil) {
     
                             if(receipt.status == '0x0'){
                               data = {status: 0}
+                              socket.emit("complete_faucet_"+user_data.access_token,data);
                             }else{
-
                               updateFaucet(socket,user_data.email,user_data.access_token)
-
                               data = {status: 1}
                             }
 
-                            socket.emit("complete_faucet_"+user_data.access_token,data);
                           } )
                           .catch((err) => {
                             console.log('send trans err: ' + err)
