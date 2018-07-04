@@ -21,7 +21,7 @@ module.exports = new User();
 
 User.prototype.register = function (req, res, next) {
 
-console.log(req.body)
+
       if(!req.body.email || !req.body.password){
         return res.status(400).json({
           status:0,
@@ -123,10 +123,9 @@ createAddress = async function(email,pwd, req, res, next){
   
   try{
 
-      account = await web3.eth.accounts.create('core2duo')
+      account = await web3.eth.accounts.create(pwd)
       // account = await web3.eth.personal.newAccount(pwd)
-      console.log(account)
-
+      
       bcapi.genAddr({},function(err, rows){
 
         if(err){

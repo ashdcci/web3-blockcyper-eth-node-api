@@ -7,19 +7,75 @@ tomodel = {};
 crypto = require('crypto')
 async = require('async')
 transaction_model = require('../model/transaction_model')
+contractController = require('../controller/contractController')
 
 class ethController{
     
     constructor(web3,Tx, fs, data, tomodel, crypto, async){
-        this.web3 = web3
+        this.web3 = web3 
         this.Tx = Tx
         this.fs = fs
         this.data = data
         this.tomodel = tomodel
         this.crypto = crypto
         this.async = async
+        this.contract = contractController
     }
 
+    async unlockAccount(req, res, next){
+      
+        if(!req.headers['eth_address']){
+            return res.status(401).json({
+                status: 0,
+                msg: 'eth address is required'
+            })
+        }
+
+        try{
+
+        
+
+        let myAddress1 =  req.headers['eth_address']
+        let myPassword = req.headers['user_password']
+        let myPrivateKey = req.headers['eth_private_key']
+        
+        if(myPrivateKey.length > 4){
+          console.log(myAddress1, myPrivateKey)
+          /**
+           * for those result if their private key already generated when creating account
+           */
+          //  let rawKeyResult = await web3.eth.personal.importRawKey(myPrivateKey.replace('0x', ''),myPassword)
+        }
+
+        /**
+         * unlocking account
+         */
+        await web3.eth.personal.unlockAccount(myAddress1, myPassword, 260)
+        .then((result) => {
+          console.log('account unlocked: ',result)
+
+          // next()
+          // contractController.prototype.trans_token(req,res, next)
+          
+          // if (result) {
+            
+          //   return res.status(200).json({status:1,msg:'account unlocked for 60s'})
+          // } else {
+          //   return res.status(200).json({status:0,msg:'account not lockes'})
+          // }
+        })
+        .catch(errorResult => {
+          console.log(errorResult)
+          console.log('problam in unlocking account: ')
+          // return res.status(200).json({status:0,msg:'account not locked'})
+        })
+
+      }catch(error){
+        console.log(error)
+        console.log('problam in unlocking account: ')
+      }
+
+    }
 
     async getEthBalance(req, res, next) {
       
@@ -29,26 +85,6 @@ class ethController{
                 msg: 'eth address is required'
             })
         }
-
-
-        // let rawKeyResult = await web3.eth.personal.importRawKey('0x24ada0012240067051f129330e2eff73a24dc0be32acf8888a67be6ccc703705','core2duo')
-        // console.log(rawKeyResult)
-        // let myAddress1 = '0xBa0BFb07A6023A50d0B626f6a97E9A7451B9a91F'
-        // web3.eth.personal.unlockAccount(myAddress1, 'core2duo', 600)
-        // .then((result) => {
-        //   console.log(result)
-        //   if (result) {
-        //     return res.status(200).json({status:1,msg:'account unlocked for 600 ms'})
-        //   } else {
-        //     return res.status(200).json({status:0,msg:'account not lockes'})
-        //   }
-        // })
-        // .catch(errorResult => {
-        //   console.log(errorResult)
-        //   return res.status(200).json({status:0,msg:'account not locked'})
-        // })
-
-        // return 
 
 
         try{            
@@ -105,7 +141,11 @@ class ethController{
         let gasLimit = 100000;
         // Chain ID of Ropsten Test Net is 3, replace it to 1 for Main Net
         let chainId = 4;
-      
+
+        /**
+         * unlock account
+         */
+        await this.unlockAccount(req, res, next)
           
         let rawTx = {
           nonce: web3.utils.toHex(count),
@@ -160,7 +200,7 @@ class ethController{
 
       saveUserTransaction(tomodel, res, next) {
 
-        console.log(tomodel)
+        
         transaction_model.saveUserTransaction(tomodel, (err, doc) => {
           if (err) { // can send error check to websocket
             

@@ -9,11 +9,12 @@ function ContractController(app) {
   model = require('../model/user_model')
   async = require('async')
   transaction_model = require('../model/transaction_model')
+  
 }
 var Tx = require('ethereumjs-tx');
 var fs = require('fs')
 var web3 = require('../config/web3')
-
+ethController = new require('../controller/ethController')
 
 ContractController.prototype.index = function(req, res, next) {
   // return res.json(web3.isConnected())
@@ -84,9 +85,16 @@ ContractController.prototype.trans_token = async function(req, res, next) {
   transferAmount = (req.body.amount!==undefined) ? req.body.amount : 1000;
   web3.eth.defaultAccount = myAddress;
 
+  
+  count = await web3.eth.getTransactionCount(web3.eth.defaultAccount);
+  
 
-  count = await web3.eth.getTransactionCount(myAddress);
   console.log(`num transactions so far: ${count}`);
+
+  /**
+    * set transaction nonce to 1 if it is initial transaction for address
+    */
+   count = (count === 0) ? 1 : count
 
   var abiArray = JSON.parse(fs.readFileSync('./config/wallet.json', 'utf8'));
 
@@ -97,10 +105,17 @@ ContractController.prototype.trans_token = async function(req, res, next) {
 
 
   // How many tokens do I have before sending?
-    var balanceBefore = contract.methods.balanceOf(myAddress).call();
+    var balanceBefore = await contract.methods.balanceOf(myAddress).call();
     console.log(`Balance before send: ${balanceBefore} ,${financialMfil(balanceBefore)} MFIL\n------------------------`);
 
-
+    /**
+     * unlock account for 260ms
+     */
+    if(count == 1){
+      
+    }
+    await ethController.unlockAccount(req,res,next)  
+    
   // I chose gas price and gas limit based on what ethereum wallet was recommending for a similar transaction. You may need to change the gas price!
   // Use Gwei for the unit of gas price
   var gasPriceGwei = '5';
@@ -111,7 +126,7 @@ ContractController.prototype.trans_token = async function(req, res, next) {
   var rawTransaction = {
     nonce: web3.utils.toHex(count),
     gasPrice: web3.utils.toHex(gasPriceGwei * 1e9),
-    gasLimit: web3.utils.toHex(gasLimit),
+    gasLimit: web3.utils.toHex(gasLimit),                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
     to: contractAddress,
     from: myAddress,
     value: "0x0",//web3.utils.toHex(web3.utils.toWei('0.84487', 'ether')),
@@ -121,7 +136,7 @@ ContractController.prototype.trans_token = async function(req, res, next) {
 
   console.log(`Raw of Transaction: \n${JSON.stringify(rawTransaction, null, '\t')}\n------------------------`);
 
-  let private_key_str = req.headers['eth_private_key']
+  let private_key_str = req.headers['eth_private_key']                                                                                                
   req.headers['eth_private_key'] = private_key_str.replace('0x', '');
 
   // The private key for myAddress in .env
@@ -171,7 +186,7 @@ ContractController.prototype.trans_token = async function(req, res, next) {
   // The receipt info of transaction, Uncomment for debug
   // console.log(`Receipt info: \n${JSON.stringify(receipt, null, '\t')}\n------------------------`);
   // The balance may not be updated yet, but let's check
-  balanceAfter = contract.methods.balanceOf(myAddress).call();
+  balanceAfter = await contract.methods.balanceOf(myAddress).call();
   console.log(`Balance after send: ${balanceAfter} , ${financialMfil(balanceAfter)} MFIL`);
 
   return false
@@ -314,6 +329,8 @@ function financialMfil(numMfil) {
       })
       
     }else{
+      // 
+      // ethController.unlockAccount(req, res, next)
       ContractController.prototype.trans_token(req, res, next)
       return res.status(200).json({
         status: 1,
@@ -427,8 +444,11 @@ function financialMfil(numMfil) {
       console.log(err, doc)
       if(err){  
         data = {status: 0}
-        socket.emit("complete_faucet_"+user_data.access_token,data);
+        
+      }else{
+        data = {status: 1}
       }
+      socket.emit("complete_faucet_"+token,data);
     })
   }
 

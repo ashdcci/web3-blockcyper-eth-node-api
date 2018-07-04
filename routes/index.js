@@ -56,7 +56,7 @@ app.get('/dashboard', passport.authenticate('jwt', {
     app.get('/transaction/getConfidence/:hash', transactionController.getTransactionConfidence)
     app.get('/wallet/balance/:wallet',walletController.getWalletAddressBalance)
     app.get('/contract/index',ContractController.index)
-    app.post('/contract/trans_token',authTokenMiddleware.authToken, ContractController.isAddress, ContractController.checkTokenBalance,ContractController.trans_token)
+    app.post('/contract/trans_token',authTokenMiddleware.authToken, ContractController.isAddress, ContractController.checkTokenBalance) // , ContractController.trans_token
     app.post('/eth/trans_to_addr',authTokenMiddleware.authToken, ethController.isAddress, ethController.checkBalance,ethController.trans_addr)
     app.get('/transaction/getSendMoney',authTokenMiddleware.authToken, transactionController.getSendMoney)
     app.get('/transaction/getRecdMoney',authTokenMiddleware.authToken, transactionController.getRecdMoney)
@@ -65,6 +65,7 @@ app.get('/dashboard', passport.authenticate('jwt', {
     app.post('/contract/new-eth-address',authTokenMiddleware.authToken,addressController.checkEthAddress, addressController.newEthAddress )
     app.post('/contract/getTokenBalance', authTokenMiddleware.authToken, ContractController.getTokenBalance)
     app.post('/eth/getBalance',authTokenMiddleware.authToken,ethController.getEthBalance)
+    app.post('/eth/unlockAccount',authTokenMiddleware.authToken,ethController.unlockAccount)
     app.post('/chat/insert',authTokenMiddleware.authToken,userMiddleware.checkUserName,chatController.insertMessage)
     app.get('/chat/get-single-thread/:recr_name',authTokenMiddleware.authToken,chatController.fetchSingleThread)
     app.get('/chat/get-threads-list',authTokenMiddleware.authToken,chatController.fetchAllThread)
