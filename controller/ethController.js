@@ -146,27 +146,18 @@ class ethController{
          * unlock account
          */
         await this.unlockAccount(req, res, next)
-          
-        let rawTx = {
-          nonce: web3.utils.toHex(count),
-          gasPrice: web3.utils.toHex(gasPriceGwei * 1e9),
-          gasLimit: web3.utils.toHex(gasLimit),
-          to: destAddress,
+
+
+          /**
+           * send normal trasactions
+           */
+        await web3.eth.sendTransaction({
           from: myAddress,
+          to: destAddress,
           value: web3.utils.toHex(web3.utils.toWei(amount, 'ether')),
-          chainId: chainId
-        }
-      
-        let tx = new Tx(rawTx);
-        tx.sign(privateKey);
-        
-        let serializedTx = tx.serialize();
-        console.log(` tx:  ${JSON.stringify(rawTx, null, '\t')}\n------------------------`);
-        console.log(`Attempting to send signed tx:  ${serializedTx.toString('hex')}\n------------------------`);
-      
-        await web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
-          .then((receipt) =>{
-            console.log(`Receipt info: \n${JSON.stringify(receipt, null, '\t')}\n------------------------`)
+        })
+        .then(function(receipt){
+          console.log(`Receipt info: \n${JSON.stringify(receipt, null, '\t')}\n------------------------`)
             global.io.emit('receive_eth_'+destAddress,{status:1,eth_balance: amount});
             global.io.emit('sender_eth_'+myAddress,{status:1,eth_balance: amount});
             // global.io.emit('sender_eth_live_'+myAddress,{status:1,eth_balance: amount,eth_address: myAddress});
@@ -179,14 +170,60 @@ class ethController{
             this.saveUserTransaction(tomodel, res, next)
 
             return false
-            
-          } )
-          .catch((err) => {
-            console.log('send trans err: ' + err)
-            global.io.emit('sender_eth_'+myAddress,{status:0,eth_balance: amount});
-            return false
-          });
+        }).catch((err) => {
+          console.log('send trans err: ' + err)
+          global.io.emit('sender_eth_'+myAddress,{status:0,eth_balance: amount});
+          return false
+        });
+          
+
+        /**
+         * @deprecated code used when send sign transaction using private key start here 
+         */
+        // let rawTx = {
+        //   nonce: web3.utils.toHex(count),
+        //   gasPrice: web3.utils.toHex(gasPriceGwei * 1e9),
+        //   gasLimit: web3.utils.toHex(gasLimit),
+        //   to: destAddress,
+        //   from: myAddress,
+        //   value: web3.utils.toHex(web3.utils.toWei(amount, 'ether')),
+        //   chainId: chainId
+        // }
       
+        // let tx = new Tx(rawTx);
+        // tx.sign(privateKey);
+        
+        // let serializedTx = tx.serialize();
+        // console.log(` tx:  ${JSON.stringify(rawTx, null, '\t')}\n------------------------`);
+        // console.log(`Attempting to send signed tx:  ${serializedTx.toString('hex')}\n------------------------`);
+      
+        // await web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
+        //   .then((receipt) =>{
+        //     console.log(`Receipt info: \n${JSON.stringify(receipt, null, '\t')}\n------------------------`)
+        //     global.io.emit('receive_eth_'+destAddress,{status:1,eth_balance: amount});
+        //     global.io.emit('sender_eth_'+myAddress,{status:1,eth_balance: amount});
+        //     // global.io.emit('sender_eth_live_'+myAddress,{status:1,eth_balance: amount,eth_address: myAddress});
+        //     tomodel.sender_address = myAddress
+        //     tomodel.recr_address = destAddress
+        //     tomodel.sender_id = myId
+        //     tomodel.amount = amount
+        //     tomodel.transaction_hash = receipt.transactionHash
+        //     tomodel.tx_type = 2
+        //     this.saveUserTransaction(tomodel, res, next)
+
+        //     return false
+            
+        //   } )
+        //   .catch((err) => {
+        //     console.log('send trans err: ' + err)
+        //     global.io.emit('sender_eth_'+myAddress,{status:0,eth_balance: amount});
+        //     return false
+        //   });
+        
+        /**
+         * @deprecated code used when send sign transaction using private key end here 
+         */
+
         }catch(error){
           console.log(error)
           global.io.emit('sender_eth_err_'+myAddress,{status:0,eth_balance: amount});

@@ -115,6 +115,35 @@ ContractController.prototype.trans_token = async function(req, res, next) {
       
     }
     await ethController.unlockAccount(req,res,next)  
+
+    await web3.eth.sendTransaction({
+      from: myAddress,
+      to: contractAddress,
+      value: "0x0",
+      data: contract.methods.transfer(destAddress, transferAmount).encodeABI()
+      //value: web3.utils.toHex(web3.utils.toWei(amount, 'ether')),
+    })
+    .then((receipt) =>{
+      console.log(`Receipt info: \n${JSON.stringify(receipt, null, '\t')}\n------------------------`)
+
+                        global.io.emit('receive_token_'+destAddress,{status:1,eth_balance: amount});
+                        global.io.emit('sender_token_'+myAddress,{status:1,eth_balance: amount});
+
+
+                        tomodel.sender_address = myAddress
+                        tomodel.recr_address = destAddress
+                        tomodel.sender_id = myId
+                        tomodel.amount = req.body.amount
+                        tomodel.transaction_hash = receipt.transactionHash
+                        tomodel.tx_type = 3
+                        saveUserTransaction(tomodel, res, next)
+    }).catch((err) =>{
+      console.log('send trans err: ' + err)
+      global.io.emit('sender_token_'+myAddress,{status:0,eth_balance: amount});
+    })
+
+
+    return
     
   // I chose gas price and gas limit based on what ethereum wallet was recommending for a similar transaction. You may need to change the gas price!
   // Use Gwei for the unit of gas price

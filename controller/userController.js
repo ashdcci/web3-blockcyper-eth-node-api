@@ -123,8 +123,8 @@ createAddress = async function(email,pwd, req, res, next){
   
   try{
 
-      account = await web3.eth.accounts.create(pwd)
-      // account = await web3.eth.personal.newAccount(pwd)
+      // account = await web3.eth.accounts.create(pwd)
+      account = await web3.eth.personal.newAccount(pwd)
       
       bcapi.genAddr({},function(err, rows){
 
@@ -139,7 +139,7 @@ createAddress = async function(email,pwd, req, res, next){
         tomodel.address_private_key = rows.private
 
         tomodel.wif = rows.wif
-        tomodel.eth_address = (account.address!==undefined) ? account.address : '---' 
+        tomodel.eth_address = (account!==undefined) ? account : '---' 
         tomodel.eth_private_key = (account.privateKey!==undefined) ? account.privateKey : '---'
         req.body.desti_address = tomodel.eth_address
 
