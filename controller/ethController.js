@@ -51,12 +51,14 @@ class ethController{
         // return 
 
 
-        try{            
+        try{ 
+            let balance = 0           
             let myAddress = req.headers['eth_address']
             console.log(myAddress)
-            let balance = await web3.eth.getBalance(myAddress)
             let sync = await web3.eth.isSyncing()
             console.log(sync)
+            balance = await web3.eth.getBalance(myAddress)
+            console.log(balance)
             // let importKey = await web3.eth.personal.importRawKey(req.headers['eth_private_key'],'core2duo')
 
             // let unlock = await web3.eth.personal.unlockAccount(myAddress,'core2duo',0)
@@ -69,7 +71,8 @@ class ethController{
             return res.status(200).json({
                 status: 1,
                 msg: 'eth address balance',
-                balance: web3.utils.fromWei(balance,'ether')
+                balance: web3.utils.fromWei(balance,'ether'),
+                sync:sync
             })
         }catch(error){
             console.log(error)

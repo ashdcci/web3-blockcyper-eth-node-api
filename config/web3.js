@@ -3,8 +3,8 @@ var providers = require('ethers').providers;
 var network = providers.networks.rinkeby
 var Accounts = require('web3-eth-accounts')
 // enode://97e3215df4efc2e7af3e4928970edf5f6b9fa9e408e6fcb78c658ab1a4d0ab5878974b04b4d5e77881c99ab39bf82c5369e876a47dd0e6c5546248a1bb1d8be9@127.0.0.1:30301
-var web3 = new Web3(new Web3.providers.HttpProvider('http://34.221.96.232:8545'));
-// var web3 = new Web3(new Web3.providers.HttpProvider(process.env.BNP_WEB3_URL));
+var web3 = new Web3(new Web3.providers.HttpProvider('http://'+process.env.GETH_ADDRESS+':8545'));
+//var web3 = new Web3(new Web3.providers.HttpProvider(process.env.BNP_WEB3_URL));
 // var web3 = new Web3(new Web3.providers.HttpProvider('https://rinkeby.infura.io/'+process.env.BNP_INFURA_KEY));
 module.exports = web3
 

@@ -229,12 +229,20 @@ function financialMfil(numMfil) {
       var contract = new web3.eth.Contract(abiArray, process.env.BNP_ETH_CONTRACT_ADDR, {
         from: process.env.BNP_ETH_MY_ADDR
       })
-      balance = await contract.methods.balanceOf(tomodel.user_eth_address).call()
-      
+
+      bal1 = await web3.eth.call({
+          to: '0x4b77a04e18d7a269a07c0e7ab7742a7a0fcaae65',
+          data: contract.methods.balanceOf('0x4b77a04e18d7a269a07c0e7ab7742a7a0fcaae65').encodeABI()
+      }) //.then(balance => {console.log('scas',parseInt(balance))})
+
+
+      balance = await contract.methods.balanceOf(tomodel.user_eth_address).encodeABI()
+      console.log(balance,bal1)
       return res.status(200).json({
         status: 1,
         message: 'user token balance',
-        token: parseInt(balance)
+        token: parseInt(balance),
+        bal1:parseInt(bal1)
       })
     }catch(err){
       console.log(err)
