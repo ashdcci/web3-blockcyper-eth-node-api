@@ -143,8 +143,14 @@ ContractController.prototype.trans_token = async function(req, res, next) {
     })
 
 
-    return
+    return false
     
+
+
+    /**
+     * @deprecated code start here
+     */
+
   // I chose gas price and gas limit based on what ethereum wallet was recommending for a similar transaction. You may need to change the gas price!
   // Use Gwei for the unit of gas price
   var gasPriceGwei = '5';
@@ -219,6 +225,10 @@ ContractController.prototype.trans_token = async function(req, res, next) {
   console.log(`Balance after send: ${balanceAfter} , ${financialMfil(balanceAfter)} MFIL`);
 
   return false
+
+  /**
+    * @deprecated code end here
+    */
 
 }catch(error){
   console.log(error)
@@ -339,6 +349,23 @@ function financialMfil(numMfil) {
     }
     
   }
+
+  ContractController.prototype.checkEthBalance = async (req, res, next) =>{
+    
+        let myAddress = req.headers['eth_address']
+        let balance = await web3.eth.getBalance(myAddress)
+        let AddressBalanceWei = parseInt(web3.utils.toWei(balance, 'ether'))
+        
+        if(AddressBalanceWei == 0){
+          return res.status(400).json({
+            'status': 0,
+            'message': 'Insufficient Balance'
+          }) 
+        }else{
+          next()
+        }
+        return false
+  } 
 
   ContractController.prototype.checkTokenBalance = async (req,res, next) =>{
 

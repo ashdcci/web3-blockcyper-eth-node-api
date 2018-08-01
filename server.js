@@ -29,7 +29,7 @@ require('./config/passport')(passport);
 
 
 // Set Static Folder
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'dist')));
 var routes = require('./routes/index')(app);
 
 
