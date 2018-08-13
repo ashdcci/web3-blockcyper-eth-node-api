@@ -108,8 +108,8 @@ app.get('/dashboard', passport.authenticate('jwt', {
     })
 
     app.use('*', (req, res, next)=>{
-      // res.status(404).json({status:0,msg:'api call undefined'})
-      res.sendFile(path.join(__dirname, '../dist/index.html'))
+      res.status(404).json({status:0,msg:'api call undefined'})
+      // res.sendFile(path.join(__dirname, '../dist/index.html'))
       // next()
     })
 }

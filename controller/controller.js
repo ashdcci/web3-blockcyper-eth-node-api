@@ -9,7 +9,7 @@ function MainController(app){
 }
 
 MainController.prototype.index = function (req, res, next) {
-    res.render('/')
+    res.render('index')
 }
 
 module.exports = new MainController();

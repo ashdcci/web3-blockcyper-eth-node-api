@@ -19,7 +19,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
 
-
+console.log(app.get('views'))
 //morge dev mode set
 app.use(morgan('dev'));
 
@@ -30,7 +30,7 @@ require('./config/passport')(passport);
 
 
 // Set Static Folder
-app.use(express.static(path.join(__dirname, 'dist')));
+app.use(express.static(path.join(__dirname, 'views')));
 const routes = require('./routes/index')(app);
 
 
