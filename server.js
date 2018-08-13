@@ -1,14 +1,15 @@
+'use strict';
 require('dotenv').config();
-var express = require('express');
-var path = require('path');
-var bodyParser = require('body-parser');
-var morgan      = require('morgan');
-var cors            = require('cors');
-var passport = require('passport');
-var port = process.env.BNP_PORT;
-var http	 	= require('http');
-var app = express();
-var server = http.createServer(app);
+const express = require('express');
+const path = require('path');
+const bodyParser = require('body-parser');
+const morgan      = require('morgan');
+const cors            = require('cors');
+const passport = require('passport');
+const port = process.env.BNP_PORT;
+const http	 	= require('http');
+const app = express();
+const server = http.createServer(app);
 // Body Parser MW
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
@@ -30,10 +31,10 @@ require('./config/passport')(passport);
 
 // Set Static Folder
 app.use(express.static(path.join(__dirname, 'dist')));
-var routes = require('./routes/index')(app);
+const routes = require('./routes/index')(app);
 
 
-var io = require('./middleware/socket.js')(server);
+const io = require('./middleware/socket.js')(server);
 
 if(process.env.BNP_ENV=='dev'){
   // error handling for dev mode
@@ -50,8 +51,12 @@ if(process.env.BNP_ENV=='dev'){
 }
 
 
-server.listen(port, function(){
-  if(process.env.BNP_ENV=='dev'){
-    console.log('Server started on port '+port);
-  }
+server.listen(port, () => {
+  console.log('Express server listening on port', port)
 });
+
+// server.listen(port, function(){
+//   if(process.env.BNP_ENV=='dev'){
+//     console.log('Server started on port '+port);
+//   }
+// });
