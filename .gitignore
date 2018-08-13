@@ -38,4 +38,4 @@ config/development_local.json
 package-lock.json
 
 build/
-.env
+#.env
