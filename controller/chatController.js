@@ -11,8 +11,30 @@ user_model = require('../model/user_model')
 
 class chatController{   
 
+    async postMessage(){
+        // shh = web3.shh;
+        try{
+            let Id = await web3.shh.generateSymKeyFromPassword('core2duo')
+        
+            web3.shh.post({
+                symKeyID: Id, // encrypts using the sym key ID
+                // sig: identities[1], // signs the message using the keyPair ID
+                ttl: 10,
+                topic: '0xffaadd11',
+                payload: '0xffffffdddddd1122',
+                powTime: 3,
+                powTarget: 0.5
+            }).then(h => console.log(`Message with hash ${h} was successfuly sent`))
+        
+        }catch(error){
+            console.log('Error: ',error)
+            return false
+        }
+        
+
+    }
     
-    insertMessage(req, res, next){
+    insertMessage(req, res){
 
         if(!req.body.recr_name || !req.body.message){
             return res.status(401).json({
