@@ -284,10 +284,7 @@ function financialMfil(numMfil) {
         from: process.env.BNP_ETH_MY_ADDR
       })
 
-      // bal1 = await web3.eth.call({
-      //     to: '0x4b77a04e18d7a269a07c0e7ab7742a7a0fcaae65',
-      //     data: contract.methods.balanceOf('0x4b77a04e18d7a269a07c0e7ab7742a7a0fcaae65').encodeABI()
-      // }) //.then(balance => {console.log('scas',parseInt(balance))})
+
 
 
       balance = parseInt(await contract.methods.balanceOf(tomodel.user_eth_address).call())
