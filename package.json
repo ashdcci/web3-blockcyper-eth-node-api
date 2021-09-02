@@ -30,7 +30,7 @@
     "lodash": "^4.17.5",
     "mail": "^0.2.3",
     "moment": "^2.19.2",
-    "mongoose": "^5.0.0",
+    "mongoose": "^6.0.4",
     "mongoose-double": "0.0.1",
     "mongoose-int32": "^0.2.0",
     "morgan": "^1.8.2",
