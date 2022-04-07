@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "async": "^2.6.0",
+    "async": "^3.2.2",
     "bigi": "^1.4.2",
     "bitcoinjs-lib": "^3.3.2",
     "blockcypher": "^0.2.0",
