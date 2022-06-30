@@ -34,7 +34,7 @@
     "mongoose-double": "0.0.1",
     "mongoose-int32": "^0.2.0",
     "morgan": "^1.8.2",
-    "passport": "^0.4.0",
+    "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
     "passport-oauth2-jwt-bearer": "^0.2.0",
     "pdfreader": "^0.2.4",
