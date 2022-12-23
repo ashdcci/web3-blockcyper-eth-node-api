@@ -26,7 +26,7 @@
     "ethers": "^3.0.7",
     "express": "^4.15.3",
     "fs": "0.0.1-security",
-    "jsonwebtoken": "^7.4.1",
+    "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.5",
     "mail": "^0.2.3",
     "moment": "^2.19.2",
