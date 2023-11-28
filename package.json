@@ -14,7 +14,7 @@
     "async": "^2.6.0",
     "bigi": "^1.4.2",
     "bitcoinjs-lib": "^3.3.2",
-    "blockcypher": "^0.2.0",
+    "blockcypher": "^0.3.0",
     "body-parser": "^1.17.2",
     "buffer": "^5.1.0",
     "cors": "^2.8.4",
@@ -37,11 +37,11 @@
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
     "passport-oauth2-jwt-bearer": "^0.2.0",
-    "pdfreader": "^0.2.4",
+    "pdfreader": "^1.0.3",
     "request": "^2.87.0",
     "rimraf": "^2.6.2",
     "socket.io": "^2.1.0",
-    "web3": "^1.0.0-beta.33",
+    "web3": "^4.0.1",
     "web3-eth-personal": "^1.0.0-beta.34"
   },
   "devDependencies": {
