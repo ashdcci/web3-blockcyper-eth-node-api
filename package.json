@@ -37,7 +37,7 @@
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
     "passport-oauth2-jwt-bearer": "^0.2.0",
-    "pdfreader": "^0.2.4",
+    "pdfreader": "^2.0.0",
     "request": "^2.87.0",
     "rimraf": "^2.6.2",
     "socket.io": "^2.1.0",
